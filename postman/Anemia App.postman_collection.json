@@ -1,0 +1,3037 @@
+{
+	"info": {
+		"_postman_id": "b40fda57-8349-4cca-b4e9-f35ec66921b0",
+		"name": "Anemia App",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30144456"
+	},
+	"item": [
+		{
+			"name": "Get All Pregnant Mother Data",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "usia",
+							"value": "12",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "hari_pertama_haid",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_tinggal",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_periksa_kecamatan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pendidikan_terakhir",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pekerjaan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "no_hp_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "kode_istri",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/mother",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"mother"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Detail Pregnant Mother Data With ID",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://localhost:3000/mother/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"mother",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Pregnant Mother Data",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "nama",
+							"value": "vio",
+							"type": "text"
+						},
+						{
+							"key": "usia",
+							"value": "12",
+							"type": "text"
+						},
+						{
+							"key": "hari_pertama_haid",
+							"value": "2022-11-10",
+							"type": "text"
+						},
+						{
+							"key": "tempat_tinggal_ktp",
+							"value": "vio",
+							"type": "text"
+						},
+						{
+							"key": "tempat_tinggal_kelurahan",
+							"value": "vio",
+							"type": "text"
+						},
+						{
+							"key": "pendidikan_terakhir",
+							"value": "vio",
+							"type": "text"
+						},
+						{
+							"key": "pekerjaan",
+							"value": "vio",
+							"type": "text"
+						},
+						{
+							"key": "nama_suami",
+							"value": "vio",
+							"type": "text"
+						},
+						{
+							"key": "no_hp_suami",
+							"value": "vio",
+							"type": "text"
+						},
+						{
+							"key": "email_suami",
+							"value": "vio",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/mother",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"mother"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Pregnant Mother Data With ID",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "nama",
+							"value": "kiodja",
+							"type": "text"
+						},
+						{
+							"key": "usia",
+							"value": "25",
+							"type": "text"
+						},
+						{
+							"key": "hari_pertama_haid",
+							"value": "2022-11-30",
+							"type": "text"
+						},
+						{
+							"key": "tempat_tinggal_ktp",
+							"value": "solo",
+							"type": "text"
+						},
+						{
+							"key": "tempat_tinggal_kelurahan",
+							"value": "solo",
+							"type": "text"
+						},
+						{
+							"key": "pendidikan_terakhir",
+							"value": "vio",
+							"type": "text"
+						},
+						{
+							"key": "pekerjaan",
+							"value": "vio",
+							"type": "text"
+						},
+						{
+							"key": "nama_suami",
+							"value": "vio",
+							"type": "text"
+						},
+						{
+							"key": "no_hp_suami",
+							"value": "vio",
+							"type": "text"
+						},
+						{
+							"key": "email_suami",
+							"value": "vio",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/mother/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"mother",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Pregnant Mother Data With ID",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://localhost:3000/mother/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"mother",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Anemia Risk Calculator Data",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "usia",
+							"value": "12",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "hari_pertama_haid",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_tinggal",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_periksa_kecamatan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pendidikan_terakhir",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pekerjaan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "no_hp_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "kode_istri",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/risk-anemia",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"risk-anemia"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Detail Anemia Risk Calculator Data With Id",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "usia",
+							"value": "12",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "hari_pertama_haid",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_tinggal",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_periksa_kecamatan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pendidikan_terakhir",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pekerjaan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "no_hp_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "kode_istri",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/risk-anemia/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"risk-anemia",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Anemia Risk Data Data",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "ibu_hamil_id",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "usia_kehamilan",
+							"value": "9",
+							"type": "text"
+						},
+						{
+							"key": "jumlah_anak",
+							"value": "3",
+							"type": "text"
+						},
+						{
+							"key": "riwayat_anemia",
+							"value": "False",
+							"type": "text"
+						},
+						{
+							"key": "konsumsi_ttd_7hari",
+							"value": "9",
+							"type": "text"
+						},
+						{
+							"key": "hasil_hb",
+							"value": "2.5",
+							"type": "text"
+						},
+						{
+							"key": "resiko",
+							"value": "vio",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/risk-anemia",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"risk-anemia"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Anemia Risk Data Data",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "ibu_hamil_id",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "usia_kehamilan",
+							"value": "6",
+							"type": "text"
+						},
+						{
+							"key": "jumlah_anak",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "riwayat_anemia",
+							"value": "true",
+							"type": "text"
+						},
+						{
+							"key": "konsumsi_ttd_7hari",
+							"value": "9",
+							"type": "text"
+						},
+						{
+							"key": "hasil_hb",
+							"value": "4.53",
+							"type": "text"
+						},
+						{
+							"key": "resiko",
+							"value": "tidak ada",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/risk-anemia/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"risk-anemia",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Detail Anemia Risk Calculator Data With Id",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "usia",
+							"value": "12",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "hari_pertama_haid",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_tinggal",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_periksa_kecamatan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pendidikan_terakhir",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pekerjaan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "no_hp_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "kode_istri",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/risk-anemia/3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"risk-anemia",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Eating Journal Data",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "usia",
+							"value": "12",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "hari_pertama_haid",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_tinggal",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_periksa_kecamatan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pendidikan_terakhir",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pekerjaan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "no_hp_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "kode_istri",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/eating-journal",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"eating-journal"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Detail Eating Journal Data With Id",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "usia",
+							"value": "12",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "hari_pertama_haid",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_tinggal",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_periksa_kecamatan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pendidikan_terakhir",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pekerjaan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "no_hp_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "kode_istri",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/eating-journal/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"eating-journal",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Eating Journal Data",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "ibu_hamil_id",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "tanggal",
+							"value": "2024-08-15",
+							"type": "text"
+						},
+						{
+							"key": "sarapan_karbohidrat",
+							"value": "100",
+							"type": "text"
+						},
+						{
+							"key": "sarapan_lauk_hewani",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "sarapan_lauk_nabati",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "sarapan_sayur",
+							"value": "3",
+							"type": "text"
+						},
+						{
+							"key": "sarapan_buah",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "makan_siang_karbohidrat",
+							"value": "4",
+							"type": "text"
+						},
+						{
+							"key": "makan_siang_lauk_hewani",
+							"value": "6",
+							"type": "text"
+						},
+						{
+							"key": "makan_siang_lauk_nabati",
+							"value": "3",
+							"type": "text"
+						},
+						{
+							"key": "makan_siang_sayur",
+							"value": "7",
+							"type": "text"
+						},
+						{
+							"key": "makan_siang_buah",
+							"value": "3",
+							"type": "text"
+						},
+						{
+							"key": "makan_malam_karbohidrat",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "makan_malam_lauk_hewani",
+							"value": "3",
+							"type": "text"
+						},
+						{
+							"key": "makan_malam_lauk_nabati",
+							"value": "4",
+							"type": "text"
+						},
+						{
+							"key": "makan_malam_sayur",
+							"value": "4",
+							"type": "text"
+						},
+						{
+							"key": "makan_malam_buah",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "total_kalori",
+							"value": "20.37",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/eating-journal",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"eating-journal"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Eating Journal Data",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "ibu_hamil_id",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "tanggal",
+							"value": "2024-08-12",
+							"type": "text"
+						},
+						{
+							"key": "sarapan_karbohidrat",
+							"value": "12",
+							"type": "text"
+						},
+						{
+							"key": "sarapan_hewani",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "sarapan_nabati",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "sarapan_sayur",
+							"value": "3",
+							"type": "text"
+						},
+						{
+							"key": "sarapan_buah",
+							"value": "6",
+							"type": "text"
+						},
+						{
+							"key": "makan_siang_karbohidrat",
+							"value": "3",
+							"type": "text"
+						},
+						{
+							"key": "makan_siang_lauk_hewani",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "makan_siang_lauk_nabati",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "makan_siang_sayur",
+							"value": "6",
+							"type": "text"
+						},
+						{
+							"key": "makan_siang_buah",
+							"value": "3",
+							"type": "text"
+						},
+						{
+							"key": "makan_malam_karbohidrat",
+							"value": "7",
+							"type": "text"
+						},
+						{
+							"key": "makan_malam_lauk_hewani",
+							"value": "3",
+							"type": "text"
+						},
+						{
+							"key": "makan_malam_lauk_nabati",
+							"value": "4",
+							"type": "text"
+						},
+						{
+							"key": "makan_malam_sayur",
+							"value": "3",
+							"type": "text"
+						},
+						{
+							"key": "makan_malam_buah",
+							"value": "4",
+							"type": "text"
+						},
+						{
+							"key": "total_kalori",
+							"value": "500.35",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/eating-journal/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"eating-journal",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Eating Journal With Id",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "usia",
+							"value": "12",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "hari_pertama_haid",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_tinggal",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_periksa_kecamatan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pendidikan_terakhir",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pekerjaan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "no_hp_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "kode_istri",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/eating-journal/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"eating-journal",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Reminder TTD Data",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "usia",
+							"value": "12",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "hari_pertama_haid",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_tinggal",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_periksa_kecamatan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pendidikan_terakhir",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pekerjaan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "no_hp_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "kode_istri",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/reminder-ttd",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"reminder-ttd"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Detail Reminder TTD Data With Id",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "usia",
+							"value": "12",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "hari_pertama_haid",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_tinggal",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_periksa_kecamatan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pendidikan_terakhir",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pekerjaan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "no_hp_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "kode_istri",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/reminder-ttd/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"reminder-ttd",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Reminder TTD Data",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "ibu_hamil_id",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "waktu_reminder_1",
+							"value": "10:30:00",
+							"type": "text"
+						},
+						{
+							"key": "waktu_reminder_2",
+							"value": "12:30:00",
+							"type": "text"
+						},
+						{
+							"key": "is_active",
+							"value": "True",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/reminder-ttd",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"reminder-ttd"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Reminder TTD Data",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "ibu_hamil_id",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "waktu_reminder_1",
+							"value": "10:45:59",
+							"type": "text"
+						},
+						{
+							"key": "waktu_reminder_2",
+							"value": "14:45:59",
+							"type": "text"
+						},
+						{
+							"key": "is_active",
+							"value": "False",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/reminder-ttd/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"reminder-ttd",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Reminder TTDl With Id",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "usia",
+							"value": "12",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "hari_pertama_haid",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_tinggal",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_periksa_kecamatan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pendidikan_terakhir",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pekerjaan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "no_hp_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "kode_istri",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/reminder-ttd/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"reminder-ttd",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Consumption TTD Data",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://localhost:3000/consumption-ttd",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"consumption-ttd"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Detail Consumtion TTD Data With Id",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "usia",
+							"value": "12",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "hari_pertama_haid",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_tinggal",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_periksa_kecamatan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pendidikan_terakhir",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pekerjaan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "no_hp_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "kode_istri",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/consumption-ttd/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"consumption-ttd",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Consumption TTD Data",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "ibu_hamil_id",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "tanggal_waktu",
+							"value": "2023-12-25 08:30:00",
+							"type": "text"
+						},
+						{
+							"key": "minum_vit_c",
+							"value": "True",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/consumption-ttd",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"consumption-ttd"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Consumption TTD Data",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "ibu_hamil_id",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "tanggal_waktu",
+							"value": "2020-02-20 12:00:00",
+							"type": "text"
+						},
+						{
+							"key": "minum_vit_c",
+							"value": "False",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/consumption-ttd/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"consumption-ttd",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Consumption TTD With Id",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "usia",
+							"value": "12",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "hari_pertama_haid",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_tinggal",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_periksa_kecamatan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pendidikan_terakhir",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pekerjaan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "no_hp_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "kode_istri",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/consumption-ttd/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"consumption-ttd",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Check HB Data",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://localhost:3000/check-hb",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"check-hb"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Detail Checl HB Data With Id",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "usia",
+							"value": "12",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "hari_pertama_haid",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_tinggal",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_periksa_kecamatan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pendidikan_terakhir",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pekerjaan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "no_hp_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "kode_istri",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/check-hb/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"check-hb",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Check HB Data",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "ibu_hamil_id",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "tanggal",
+							"value": "2023-11-21",
+							"type": "text"
+						},
+						{
+							"key": "nilai_hb",
+							"value": "32.332",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/check-hb",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"check-hb"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Check HB Data",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "ibu_hamil_id",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "tanggal",
+							"value": "2024-12-11",
+							"type": "text"
+						},
+						{
+							"key": "nilai_hb",
+							"value": "10.21",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/check-hb/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"check-hb",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Check HB With Id",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "usia",
+							"value": "12",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "hari_pertama_haid",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_tinggal",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_periksa_kecamatan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pendidikan_terakhir",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pekerjaan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "no_hp_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "kode_istri",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/check-hb/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"check-hb",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Puskesmas Officer Data",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://localhost:3000/puskesmas-officer",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"puskesmas-officer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Detail Puskesmas Officer Data With Id",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "usia",
+							"value": "12",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "hari_pertama_haid",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_tinggal",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_periksa_kecamatan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pendidikan_terakhir",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pekerjaan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "no_hp_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "kode_istri",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/puskesmas-officer/10",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"puskesmas-officer",
+						"10"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Puskesmas Officer Data",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "puskesmas_id",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "nama",
+							"value": "Solo",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/puskesmas-officer",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"puskesmas-officer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Puskesmas Officer Data",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "puskesmas_id",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "nama",
+							"value": "Solo",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/puskesmas-officer/0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"puskesmas-officer",
+						"0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Puskesmas Officer With Id",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "usia",
+							"value": "12",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "hari_pertama_haid",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_tinggal",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_periksa_kecamatan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pendidikan_terakhir",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pekerjaan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "no_hp_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "kode_istri",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/puskesmas-officer/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"puskesmas-officer",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Puskesmas Data",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://localhost:3000/puskesmas",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"puskesmas"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Detail Puskesmas Data With Id",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "usia",
+							"value": "12",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "hari_pertama_haid",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_tinggal",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_periksa_kecamatan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pendidikan_terakhir",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pekerjaan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "no_hp_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "kode_istri",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/puskesmas/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"puskesmas",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Puskesmas Data",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "nama_puskesmas",
+							"value": "b",
+							"type": "text"
+						},
+						{
+							"key": "alamat",
+							"value": "test",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/puskesmas",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"puskesmas"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Puskesmas Data",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "nama",
+							"value": "aaaaaa",
+							"type": "text"
+						},
+						{
+							"key": "kecamatan",
+							"value": "asd",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/puskesmas/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"puskesmas",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Puskesmas With Id",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "usia",
+							"value": "12",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "hari_pertama_haid",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_tinggal",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_periksa_kecamatan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pendidikan_terakhir",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pekerjaan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "no_hp_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "kode_istri",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/puskesmas/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"puskesmas",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Education Data",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/education",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"education"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Detail Education Data With Id",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "usia",
+							"value": "12",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "hari_pertama_haid",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_tinggal",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_periksa_kecamatan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pendidikan_terakhir",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pekerjaan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "no_hp_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "kode_istri",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/education/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"education",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Education Data",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "judul",
+							"value": "Ibu Hamil",
+							"type": "text"
+						},
+						{
+							"key": "konten",
+							"value": "asdasfgfdhfghgfh",
+							"type": "text"
+						},
+						{
+							"key": "jenis",
+							"value": "Kesehatan",
+							"type": "text"
+						},
+						{
+							"key": "kategori",
+							"value": "Kesehatan",
+							"type": "text"
+						},
+						{
+							"key": "created_by",
+							"value": "1",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/education",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"education"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Puskesmas Data Copy",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "judul",
+							"value": "aaaaaa",
+							"type": "text"
+						},
+						{
+							"key": "konten",
+							"value": "asd",
+							"type": "text"
+						},
+						{
+							"key": "jenis",
+							"value": "asd",
+							"type": "text"
+						},
+						{
+							"key": "kategori",
+							"value": "asd",
+							"type": "text"
+						},
+						{
+							"key": "created_by",
+							"value": "2",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/education/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"education",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Puskesmas With Id Copy",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "usia",
+							"value": "12",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "hari_pertama_haid",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_tinggal",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tempat_periksa_kecamatan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pendidikan_terakhir",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "pekerjaan",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "nama_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "no_hp_suami",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "kode_istri",
+							"value": "vio",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/education/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"education",
+						"2"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

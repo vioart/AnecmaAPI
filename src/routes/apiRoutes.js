@@ -4,6 +4,9 @@ const dataController = require('../controllers/dataController');
 const husbandController = require('../controllers/husbandController');
 const educationController = require('../controllers/educationController');
 const healthCenterController = require('../controllers/healthCenterController');
+const verifyToken = require('../Middleware/middleware');
+
+const motherController = require('../controllers/motherController');
 
 
 const apiRoutes = [
@@ -13,9 +16,9 @@ const apiRoutes = [
         path: '/',
         handler: async (request, h) => {
             try {
-                const welcomeMessage = 'Welcome to our Anemia API!';
-                return h.response({ status: 'success', message: welcomeMessage}).code(200);
-            } catch (error) {
+                const welcomeMessage = 'Welcome to our Anecma API!';
+                return h.response({ success: true, message: welcomeMessage}).code(200);
+            } catch {
                 return h.response({ error: 'Failed to retrive homepage.'}.code(500));
             }
         },
@@ -26,38 +29,276 @@ const apiRoutes = [
         handler: async (request, h) => {
             try {
                 const apiInfo = {
-                    name: 'Anemia API',
+                    name: 'Anecma API',
                     version: '1.0.0',
                     description:
                         "A RESTful API for managing anemia risk calculator data, meal journals, iron supplement reminders, and iron supplement consumption provides endpoints for creating, updating, deleting, and managing data of pregnant women, husbands, and healthcare workers."
                 };
                 return h.response(apiInfo).code(200);
-            } catch (error) {
+            } catch {
                 return h.response({ error: 'Failed to retrieve API information.' }).code(500);
             }
         },
     },
     {
-      method: 'GET',
-      path: '/auth/google/callback',
-      handler: authController.SignIn,
+      method: 'POST',
+      path: '/api/auth/callback/google',
+      options: {
+          payload: {
+            multipart: true,
+          },
+          validate: {
+            payload: Joi.object({
+              provider: Joi.string().allow('').label('provider'),
+              user: Joi.object({
+                email: Joi.string().email().required()
+              }).required(),
+            }),
+            failAction: async (request, h, err) => {
+              throw err;
+            },
+          },
+      },
+      handler: authController.login,
     },
+
+    // Page Dasboard Istri
     {
       method: 'GET',
-      path: '/auth/google',
-      handler:authController.CallbackSignIn,
+      path: '/istri/dashboard',
+      options: {
+        pre: [verifyToken], // Middleware untuk verifikasi token
+      },
+      handler: motherController.DasboardMother,
+    },
+
+    // Page Education Istri
+    {
+      method: 'GET',
+      path: '/istri/edukasi',
+      options: {
+        pre: [verifyToken], // Middleware untuk verifikasi token
+      },
+      handler: motherController.EducationPregnantMother,
+    },
+
+    // Page Update profile Istri
+    {
+      method: 'PUT',
+      path: '/istri/profile/data-diri',
+      options: {
+        payload: {
+          multipart: true,
+        },
+        pre: [verifyToken],
+        validate: {
+          payload: Joi.object({
+            nama: Joi.string().allow('').label('nama'),
+            usia: Joi.number().integer().label('usia'),            
+            no_hp: Joi.number().integer().label('no_hp'),
+          }),
+          failAction: async (request, h, err) => {
+            throw err;
+          },
+        },
+      },
+      
+      handler: motherController.ProfileMother,
+    },
+
+    // Page Update Data diri Istri
+    {
+      method: 'PUT',
+      path: '/istri/profile/data-kehamilan',
+      options: {
+        payload: {
+          multipart: true,
+        },
+        pre: [verifyToken],
+        validate: {
+          payload: Joi.object({
+            hari_pertama_haid: Joi.date().iso().label('hari_pertama_haid'),
+            tempat_tinggal_ktp: Joi.string().allow('').label('tempat_tinggal_ktp'),
+            tempat_tinggal_kelurahan: Joi.string().allow('').label('tempat_tinggal_kelurahan'),
+            pendidikan_terakhir: Joi.string().allow('').label('pendidikan_terakhir'),
+            pekerjaan: Joi.string().allow('').label('pekerjaan'),
+          }),
+          failAction: async (request, h, err) => {
+            throw err;
+          },
+        },
+      },
+      
+      handler: motherController.PregnancyPersonalData,
+    },
+
+    // Page Update Data Suami pada Istri
+    {
+      method: 'PUT',
+      path: '/istri/profile/data-suami',
+      options: {
+        payload: {
+          multipart: true,
+        },
+        pre: [verifyToken],
+        validate: {
+          payload: Joi.object({
+            nama_suami: Joi.string().allow('').label('nama_suami'),
+            no_hp_suami: Joi.string().allow('').label('no_hp_suami'),
+            email_suami: Joi.string().allow('').label('email_suami'),
+          }),
+          failAction: async (request, h, err) => {
+            throw err;
+          },
+        },
+      },
+      
+      handler: motherController.HusbandData,
+    },
+
+    // Page Update Data Suami pada Istri
+    {
+      method: 'POST',
+      path: '/istri/dashboard/kalkulator-anemia',
+      options: {
+        payload: {
+          multipart: true,
+        },
+        pre: [verifyToken],
+        validate: {
+          payload: Joi.object({
+            usia_kehamilan: Joi.number().integer().label('usia_kehamilan'),
+            jumlah_anak: Joi.number().integer().label('jumlah_anak'),            
+            konsumsi_ttd_7hari: Joi.number().integer().label('konsumsi_ttd_7hari'),
+            hasil_hb: Joi.number().precision(2).required().label('hasil_hb'),
+            riwayat_anemia: Joi.boolean().label('riwayat_anemia'),
+          }),
+          failAction: async (request, h, err) => {
+            throw err;
+          },
+        },
+      },
+      
+      handler: motherController.CalculatorAnemia,
+    },
+
+    // Page Jurnal Makan
+    {
+      method: 'POST',
+      path: '/istri/dashboard/jurnal-makan',
+      options: {
+        payload: {
+          multipart: true,
+        },
+        pre: [verifyToken],
+        validate: {
+          payload: Joi.object({
+            sarapan_karbohidrat: Joi.number().integer().label('sarapan_karbohidrat'),
+            sarapan_lauk_hewani: Joi.number().integer().label('sarapan_lauk_hewani'),
+            sarapan_lauk_nabati: Joi.number().integer().label('sarapan_lauk_nabati'),
+            sarapan_sayur: Joi.number().integer().label('sarapan_sayur'),
+            sarapan_buah: Joi.number().integer().label('sarapan_buah'),
+            makan_siang_karbohidrat: Joi.number().integer().label('makan_siang_karbohidrat'),
+            makan_siang_lauk_hewani: Joi.number().integer().label('makan_siang_lauk_hewani'),
+            makan_siang_lauk_nabati: Joi.number().integer().label('makan_siang_lauk_nabati'),
+            makan_siang_sayur: Joi.number().integer().label('makan_siang_sayur'),
+            makan_siang_buah: Joi.number().integer().label('makan_siang_buah'),
+            makan_malam_karbohidrat: Joi.number().integer().label('makan_malam_karbohidrat'),
+            makan_malam_lauk_hewani: Joi.number().integer().label('makan_malam_lauk_hewani'),
+            makan_malam_lauk_nabati: Joi.number().integer().label('makan_malam_lauk_nabati'),
+            makan_malam_sayur: Joi.number().integer().label('makan_malam_sayur'),
+            makan_malam_buah: Joi.number().integer().label('makan_malam_buah'),
+            total_kalori: Joi.number().precision(2).required().label('total_kalori'),
+          }),
+          failAction: async (request, h, err) => {
+            throw err;
+          },
+        },
+      },
+      
+      handler: motherController.EatingJurnal,
+    },
+
+    // Page Jurnal Makan
+    {
+      method: 'POST',
+      path: '/istri/dashboard/konsumsi-ttd',
+      options: {
+        payload: {
+          multipart: true,
+        },
+        pre: [verifyToken],
+        validate: {
+          payload: Joi.object({
+            minum_vit_c: Joi.string().allow('').label('minum_vit_c'),
+          }),
+          failAction: async (request, h, err) => {
+            throw err;
+          },
+        },
+      },
+      
+      handler: motherController.ConsumptionTTD,
+    },
+
+    {
+      method: 'POST',
+      path: '/istri/dashboard/riwayat',
+      options: {
+        payload: {
+          multipart: true,
+        },
+        pre: [verifyToken],
+        validate: {
+          payload: Joi.object({
+            nilai_hb: Joi.string().allow('').label('nilai_hb'),
+          }),
+          failAction: async (request, h, err) => {
+            throw err;
+          },
+        },
+      },
+      
+      handler: motherController.HistoryHB,
+    },
+
+    {
+      method: 'POST',
+      path: '/istri/dashboard/reminder-ttd',
+      options: {
+        payload: {
+          multipart: true,
+        },
+        pre: [verifyToken],
+        validate: {
+          payload: Joi.object({
+            waktu_reminder_1: Joi.string().pattern(/^(0[1-9]|1[0-2]):([0-5]\d):([0-5]\d) (AM|PM)$/).label('waktu_reminder_1'),
+            is_active_reminder_1: Joi.number().integer().label('is_active_reminder_1'),
+            waktu_reminder_2: Joi.string().pattern(/^(0[1-9]|1[0-2]):([0-5]\d):([0-5]\d) (AM|PM)$/).label('waktu_reminder_2'),
+            is_active_reminder_2: Joi.number().integer().label('is_active_reminder_2'),
+          }),
+          failAction: async (request, h, err) => {
+            throw err;
+          },
+        },
+      },
+      handler: motherController.ReminderTTD,
     },
 
     // Data Pregnant Mother
     {
         method: 'GET',
         path: '/mother',
+        options: {
+          pre: [verifyToken],
+        },
         handler: dataController.getAllPregnantMother,
     },
     {
         method: 'GET',
         path: '/mother/{id}',
         options: {
+            pre: [verifyToken],
             validate: {
               params: Joi.object({
                 id: Joi.number().required(),
@@ -73,6 +314,7 @@ const apiRoutes = [
             payload: {
               multipart: true,
             },
+            pre: [verifyToken],
             validate: {
               payload: Joi.object({
                 user_id: Joi.number().integer().label('user_id'),
@@ -101,6 +343,7 @@ const apiRoutes = [
             payload: {
               multipart: true,
             },
+            pre: [verifyToken],
             validate: {
               payload: Joi.object({
                 user_id: Joi.number().integer().label('user_id'),
@@ -126,11 +369,12 @@ const apiRoutes = [
         method: 'DELETE',
         path: '/mother/{id}',
         options: {
-            validate: {
-              params: Joi.object({
-                id: Joi.number().required(),
-              }),
-            },
+          pre: [verifyToken],
+          validate: {
+            params: Joi.object({
+              id: Joi.number().required(),
+            }),
+          },
         },
         handler: dataController.deletePregnantMother
 
@@ -140,17 +384,21 @@ const apiRoutes = [
     {
         method: 'GET',
         path: '/risk-anemia',
+        options: {
+          pre: [verifyToken],
+        },
         handler: dataController.getAllRiskAnemia,
     },
     {
         method: 'GET',
         path: '/risk-anemia/{id}',
         options: {
-            validate: {
-              params: Joi.object({
-                id: Joi.string().required(),
-              }),
-            },
+          pre: [verifyToken],
+          validate: {
+            params: Joi.object({
+              id: Joi.string().required(),
+            }),
+          },
         },
         handler: dataController.getRiskAnemia,
     },
@@ -158,23 +406,24 @@ const apiRoutes = [
         method: 'POST',
         path: '/risk-anemia',
         options: {
-            payload: {
-              multipart: true,
+          pre: [verifyToken],
+          payload: {
+            multipart: true,
+          },
+          validate: {
+            payload: Joi.object({
+              ibu_hamil_id: Joi.number().integer().label('ibu_hamil_id'),
+              usia_kehamilan: Joi.number().integer().label('usia_kehamilan'),
+              jumlah_anak: Joi.number().integer().label('jumlah_anak'),
+              riwayat_anemia: Joi.boolean().label('riwayat_anemia'),
+              konsumsi_ttd_7hari: Joi.number().integer().label('konsumsi_ttd_7hari'),
+              hasil_hb: Joi.number().precision(2).required().label('hasil_hb'),
+              resiko: Joi.string().allow('').label('resiko'),
+            }),
+            failAction: async (request, h, err) => {
+              throw err;
             },
-            validate: {
-              payload: Joi.object({
-                ibu_hamil_id: Joi.number().integer().label('ibu_hamil_id'),
-                usia_kehamilan: Joi.number().integer().label('usia_kehamilan'),
-                jumlah_anak: Joi.number().integer().label('jumlah_anak'),
-                riwayat_anemia: Joi.boolean().label('riwayat_anemia'),
-                konsumsi_ttd_7hari: Joi.number().integer().label('konsumsi_ttd_7hari'),
-                hasil_hb: Joi.number().precision(2).required().label('hasil_hb'),
-                resiko: Joi.string().allow('').label('resiko'),
-              }),
-              failAction: async (request, h, err) => {
-                throw err;
-              },
-            },
+          },
         },
         handler: dataController.createRiskAnemia,
     },
@@ -185,6 +434,7 @@ const apiRoutes = [
           payload: {
             multipart: true,
           },
+          pre: [verifyToken],
           validate: {
             payload: Joi.object({
               ibu_hamil_id: Joi.number().integer().label('ibu_hamil_id'),
@@ -206,6 +456,7 @@ const apiRoutes = [
       method: 'DELETE',
       path: '/risk-anemia/{id}',
       options: {
+        pre: [verifyToken],
           validate: {
             params: Joi.object({
               id: Joi.number().required(),
@@ -219,12 +470,16 @@ const apiRoutes = [
     {
         method: 'GET',
         path: '/eating-journal',
+        options: {
+          pre: [verifyToken],
+        },
         handler: dataController.getAllEatingJournal,
     },
     {
         method: 'GET',
         path: '/eating-journal/{id}',
         options: {
+          pre: [verifyToken],
             validate: {
               params: Joi.object({
                 id: Joi.number().required(),
@@ -240,6 +495,7 @@ const apiRoutes = [
             payload: {
               multipart: true,
             },
+            pre: [verifyToken],
             validate: {
               payload: Joi.object({
                 ibu_hamil_id: Joi.number().integer().label('ibu_hamil_id'),
@@ -275,6 +531,7 @@ const apiRoutes = [
           payload: {
             multipart: true,
           },
+          pre: [verifyToken],
           validate: {
             payload: Joi.object({
               ibu_hamil_id: Joi.number().integer().label('ibu_hamil_id'),
@@ -307,6 +564,7 @@ const apiRoutes = [
       method: 'DELETE',
       path: '/eating-journal/{id}',
       options: {
+        pre: [verifyToken],
           validate: {
             params: Joi.object({
               id: Joi.number().required(),
@@ -320,12 +578,16 @@ const apiRoutes = [
     {
       method: 'GET',
       path: '/check-hb',
+      options: {
+        pre: [verifyToken],
+      },
       handler: dataController.getAllCheckHB,
   },
   {
       method: 'GET',
       path: '/check-hb/{id}',
       options: {
+        pre: [verifyToken],
           validate: {
             params: Joi.object({
               id: Joi.number().required(),
@@ -341,6 +603,7 @@ const apiRoutes = [
           payload: {
             multipart: true,
           },
+          pre: [verifyToken],
           validate: {
             payload: Joi.object({
               ibu_hamil_id: Joi.number().integer().label('ibu_hamil_id'),
@@ -361,6 +624,7 @@ const apiRoutes = [
         payload: {
           multipart: true,
         },
+        pre: [verifyToken],
         validate: {
           payload: Joi.object({
             ibu_hamil_id: Joi.number().integer().label('ibu_hamil_id'),
@@ -378,6 +642,7 @@ const apiRoutes = [
     method: 'DELETE',
     path: '/check-hb/{id}',
     options: {
+      pre: [verifyToken],
         validate: {
           params: Joi.object({
             id: Joi.number().required(),
@@ -391,12 +656,16 @@ const apiRoutes = [
     {
         method: 'GET',
         path: '/reminder-ttd',
+        options: {
+          pre: [verifyToken],
+        },
         handler: dataController.getAllReminderTtd,
     },
     {
         method: 'GET',
         path: '/reminder-ttd/{id}',
         options: {
+            pre: [verifyToken],
             validate: {
               params: Joi.object({
                 id: Joi.number().required(),
@@ -412,6 +681,7 @@ const apiRoutes = [
             payload: {
               multipart: true,
             },
+            pre: [verifyToken],
             validate: {
               payload: Joi.object({
                 ibu_hamil_id: Joi.number().integer().label('ibu_hamil_id'),
@@ -433,6 +703,7 @@ const apiRoutes = [
           payload: {
             multipart: true,
           },
+          pre: [verifyToken],
           validate: {
             payload: Joi.object({
               ibu_hamil_id: Joi.number().integer().label('ibu_hamil_id'),
@@ -451,6 +722,7 @@ const apiRoutes = [
       method: 'DELETE',
       path: '/reminder-ttd/{id}',
       options: {
+          pre: [verifyToken],
           validate: {
             params: Joi.object({
               id: Joi.number().required(),
@@ -464,12 +736,16 @@ const apiRoutes = [
     {
         method: 'GET',
         path: '/consumption-ttd',
+        options: {
+          pre: [verifyToken],
+        },
         handler: dataController.getAllConsumptionTtd,
     },
     {
         method: 'GET',
         path: '/consumption-ttd/{id}',
         options: {
+            pre: [verifyToken],
             validate: {
               params: Joi.object({
                 id: Joi.number().required(),
@@ -485,6 +761,7 @@ const apiRoutes = [
             payload: {
               multipart: true,
             },
+            pre: [verifyToken],
             validate: {
               payload: Joi.object({
                 ibu_hamil_id: Joi.number().integer().label('ibu_hamil_id'),
@@ -507,6 +784,7 @@ const apiRoutes = [
           payload: {
             multipart: true,
           },
+          pre: [verifyToken],
           validate: {
             payload: Joi.object({
               ibu_hamil_id: Joi.number().integer().label('ibu_hamil_id'),
@@ -526,6 +804,7 @@ const apiRoutes = [
       method: 'DELETE',
       path: '/consumption-ttd/{id}',
       options: {
+          pre: [verifyToken],
           validate: {
             params: Joi.object({
               id: Joi.number().required(),
@@ -539,17 +818,21 @@ const apiRoutes = [
     {
       method: 'GET',
       path: '/education',
+      options: {
+        pre: [verifyToken],
+      },
       handler: educationController.getAllEducation,
   },
   {
       method: 'GET',
       path: '/education/{id}',
       options: {
-          validate: {
-            params: Joi.object({
-              id: Joi.number().required(),
-            }),
-          },
+        pre: [verifyToken],
+        validate: {
+          params: Joi.object({
+            id: Joi.number().required(),
+          }),
+        },
       },
       handler: educationController.getEducation,
   },
@@ -560,6 +843,7 @@ const apiRoutes = [
           payload: {
             multipart: true,
           },
+          pre: [verifyToken],
           validate: {
             payload: Joi.object({
               judul: Joi.string().allow('').label('judul'),
@@ -582,6 +866,7 @@ const apiRoutes = [
         payload: {
           multipart: true,
         },
+        pre: [verifyToken],
         validate: {
           payload: Joi.object({
             judul: Joi.string().allow('').label('judul'),
@@ -601,6 +886,7 @@ const apiRoutes = [
     method: 'DELETE',
     path: '/education/{id}',
     options: {
+      pre: [verifyToken],
         validate: {
           params: Joi.object({
             id: Joi.number().required(),
@@ -614,12 +900,16 @@ const apiRoutes = [
     {
         method: 'GET',
         path: '/husband',
+        options : {
+          pre: [verifyToken],
+        },
         handler: husbandController.getAllHusband,
     },
     {
         method: 'GET',
         path: '/husband/{id}',
         options: {
+          pre: [verifyToken],
             validate: {
               params: Joi.object({
                 id: Joi.string().required(),
@@ -635,6 +925,7 @@ const apiRoutes = [
             payload: {
               multipart: true,
             },
+            pre: [verifyToken],
             validate: {
               payload: Joi.object({
                 //id: Joi.number().integer().label('id'),
@@ -656,6 +947,7 @@ const apiRoutes = [
           payload: {
             multipart: true,
           },
+          pre: [verifyToken],
           validate: {
             payload: Joi.object({
               user_id: Joi.number().integer().label('user_id'),
@@ -673,6 +965,7 @@ const apiRoutes = [
       method: 'DELETE',
       path: '/husband/{id}',
       options: {
+        pre: [verifyToken],
           validate: {
             params: Joi.object({
               id: Joi.string().required(),
@@ -686,12 +979,16 @@ const apiRoutes = [
     {
         method: 'GET',
         path: '/puskesmas-officer',
+        options: {
+          pre: [verifyToken],
+        },
         handler: healthCenterController.getAllOfficer,
     },
     {
         method: 'GET',
         path: '/puskesmas-officer/{petugas_id}',
         options: {
+            pre: [verifyToken],
             validate: {
               params: Joi.object({
                 petugas_id: Joi.number().required(),
@@ -707,6 +1004,7 @@ const apiRoutes = [
             payload: {
               multipart: true,
             },
+            pre: [verifyToken],
             validate: {
               payload: Joi.object({
                   user_id: Joi.number().integer().label('user_id'),
@@ -727,6 +1025,7 @@ const apiRoutes = [
           payload: {
             multipart: true,
           },
+          pre: [verifyToken],
           validate: {
             payload: Joi.object({
               user_id: Joi.number().integer().label('user_id'),
@@ -744,6 +1043,7 @@ const apiRoutes = [
       method: 'DELETE',
       path: '/puskesmas-officer/{id}',
       options: {
+          pre: [verifyToken],
           validate: {
             params: Joi.object({
               id: Joi.number().required(),
@@ -757,12 +1057,16 @@ const apiRoutes = [
     {
         method: 'GET',
         path: '/puskesmas',
+        options: {
+          pre: [verifyToken],
+        },
         handler: healthCenterController.getAllPuskesmas,
     },
     {
         method: 'GET',
         path: '/puskesmas/{id}',
         options: {
+            pre: [verifyToken],
             validate: {
               params: Joi.object({
                 id: Joi.number().required(),
@@ -778,6 +1082,7 @@ const apiRoutes = [
             payload: {
               multipart: true,
             },
+            pre: [verifyToken],
             validate: {
               payload: Joi.object({
                 nama_puskesmas: Joi.string().allow('').label('nama_puskesmas'),
@@ -797,6 +1102,7 @@ const apiRoutes = [
           payload: {
             multipart: true,
           },
+          pre: [verifyToken],
           validate: {
             payload: Joi.object({
               nama_puskesmas: Joi.string().allow('').label('nama_puskesmas'),
@@ -813,6 +1119,7 @@ const apiRoutes = [
       method: 'DELETE',
       path: '/puskesmas/{id}',
       options: {
+          pre: [verifyToken],
           validate: {
             params: Joi.object({
               id: Joi.number().required(),

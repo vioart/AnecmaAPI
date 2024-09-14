@@ -1,7 +1,7 @@
-const supabase = require('../config/supabase'); 
+const db = require('../config/database'); // Assuming this is your MySQL connection
 
 const educationController = {
-    // Education
+    // Create Education
     createEducation: async (request, h) => {
         try {
             const {
@@ -11,14 +11,12 @@ const educationController = {
                 kategori,
                 created_by
             } = request.payload;
-    
+
             if (!judul) {
-            const response = h.response({
-                status: 'fail',
-                message: 'Failed to add education data. Please provide the education data id.',
-            });
-            response.code(400);
-            return response;
+                return h.response({
+                    status: 'fail',
+                    message: 'Failed to add education data. Please provide the education data title.',
+                }).code(400);
             }
 
             const newItem = {
@@ -31,72 +29,64 @@ const educationController = {
                 updated_at: new Date().toISOString()
             };
 
-            const { data, error } = await supabase
-            .from('Edukasi')
-            .insert([newItem])
-            .select('*');
+            const [result] = await db.query(
+                `INSERT INTO Edukasi (judul, konten, jenis, kategori, created_by, created_at, updated_at) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [judul, konten, jenis, kategori, created_by, newItem.created_at, newItem.updated_at]
+            );
 
-            if (error) {
-                console.error('Error adding document:', error);
-                return h.response({ status: 'fail', message: error.message }).code(500);
+            if (result.affectedRows === 0) {
+                return h.response({ status: 'fail', message: 'Failed to add education data' }).code(400);
             }
 
-            const responsePayload = {
-                status: 'success',
-                data: data[0]
-            };
+            const [newData] = await db.query(
+                `SELECT * FROM Edukasi WHERE edukasi_id = ?`,
+                [result.insertId]
+            );
 
-            return h.response(responsePayload).code(201);
+            return h.response({ status: 'success', data: newData[0] }).code(201);
         } catch (error) {
+            console.error('Error adding data:', error);
             return h.response({ status: 'fail', message: error.message }).code(500);
         }
     },
-    
+
+    // Get Single Education
     getEducation: async (request, h) => {
         try {
             const { id } = request.params;
-    
-            const { data, error } = await supabase
-                .from('Edukasi')
-                .select('*')
-                .eq('edukasi_id', id)
-                .single();
-            
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
+
+            const [data] = await db.query(
+                `SELECT * FROM Edukasi WHERE edukasi_id = ?`,
+                [id]
+            );
 
             if (data.length === 0) {
                 return h.response({ status: 'fail', message: 'Education not found' }).code(404);
             }
-    
-            const responsePayload = {
-                status: 'success',
-                data: data
-            };
-    
-            return h.response(responsePayload).code(200);
+
+            return h.response({ status: 'success', data: data[0] }).code(200);
         } catch (error) {
+            console.error('Error fetching data:', error);
             return h.response({ status: 'fail', message: 'Error fetching data' }).code(500);
         }
     },
 
+    // Get All Education
     getAllEducation: async (request, h) => {
         try {
-            const { data, error } = await supabase
-                .from('Edukasi')
-                .select('*');
-    
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(400);
-            }
-    
-            return h.response({ status: 'success', data: data }).code(200);
+            const [data] = await db.query(
+                `SELECT * FROM Edukasi`
+            );
+
+            return h.response({ status: 'success', data }).code(200);
         } catch (error) {
+            console.error('Error fetching data:', error);
             return h.response({ status: 'fail', message: 'Error fetching data' }).code(500);
         }
     },
 
+    // Update Education
     updateEducation: async (request, h) => {
         try {
             const { id } = request.params;
@@ -117,61 +107,54 @@ const educationController = {
                 updated_at: new Date().toISOString()
             };
 
+            // Remove undefined values
             Object.keys(updatedItem).forEach(key => {
                 if (updatedItem[key] === undefined) {
                     delete updatedItem[key];
                 }
             });
 
-            const { data, error } = await supabase
-            .from('Edukasi')
-            .update(updatedItem)
-            .eq('edukasi_id', id)
-            .select('*');
+            const [updateResult] = await db.query(
+                `UPDATE Edukasi SET ? WHERE edukasi_id = ?`,
+                [updatedItem, id]
+            );
 
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
-
-            if (data.length === 0) {
+            if (updateResult.affectedRows === 0) {
                 return h.response({ status: 'fail', message: 'Education not found' }).code(404);
             }
 
-            const responsePayload = {
-                status: 'success',
-                data: data[0]
-            };
-    
-            return h.response(responsePayload).code(200);
+            const [updatedData] = await db.query(
+                `SELECT * FROM Edukasi WHERE edukasi_id = ?`,
+                [id]
+            );
+
+            return h.response({ status: 'success', data: updatedData[0] }).code(200);
         } catch (error) {
+            console.error('Error updating data:', error);
             return h.response({ status: 'fail', message: error.message }).code(500);
         }
     },
 
+    // Delete Education
     deleteEducation: async (request, h) => {
         try {
             const { id } = request.params;
 
-            const { data, error } = await supabase
-            .from('Edukasi')
-            .delete()
-            .eq('edukasi_id', id)
-            .select('*');
+            const [deleteResult] = await db.query(
+                `DELETE FROM Edukasi WHERE edukasi_id = ?`,
+                [id]
+            );
 
-            if (error) {
-                console.error('Error deleting document:', error);
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
-
-            if (data.length === 0) {
+            if (deleteResult.affectedRows === 0) {
                 return h.response({ status: 'fail', message: 'Education not found' }).code(404);
             }
 
             return h.response({ status: 'success', message: 'Education deleted successfully' }).code(200);
         } catch (error) {
+            console.error('Error deleting data:', error);
             return h.response({ status: 'fail', message: error.message }).code(500);
         }
     },
-}
+};
 
 module.exports = educationController;

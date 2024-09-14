@@ -1,4 +1,4 @@
-const supabase = require('../config/supabase'); 
+const db = require('../config/database'); // Assuming this is your MySQL connection
 
 const dataController = {
     createPregnantMother: async (request, h) => {
@@ -16,14 +16,12 @@ const dataController = {
                 no_hp_suami,
                 email_suami,
             } = request.payload;
-    
+
             if (!nama) {
-            const response = h.response({
-                status: 'fail',
-                message: 'Failed to add pregnant mother data. Please provide the pregnant mother name.',
-            });
-            response.code(400);
-            return response;
+                return h.response({
+                    status: 'fail',
+                    message: 'Failed to add pregnant mother data. Please provide the pregnant mother name.',
+                }).code(400);
             }
 
             const newItem = {
@@ -42,22 +40,24 @@ const dataController = {
                 updated_at: new Date().toISOString()
             };
 
-            const { data, error } = await supabase
-                .from('IbuHamil')
-                .insert([newItem])
-                .select('*');
-            if (error) {
-                console.error('Error adding document:', error);
-                return h.response({ status: 'fail', message: error.message }).code(500);
+            const [result] = await db.query(
+                `INSERT INTO IbuHamil (user_id, nama, usia, hari_pertama_haid, tempat_tinggal_ktp, tempat_tinggal_kelurahan, pendidikan_terakhir, pekerjaan, nama_suami, no_hp_suami, email_suami, created_at, updated_at) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [newItem.user_id, newItem.nama, newItem.usia, newItem.hari_pertama_haid, newItem.tempat_tinggal_ktp, newItem.tempat_tinggal_kelurahan, newItem.pendidikan_terakhir, newItem.pekerjaan, newItem.nama_suami, newItem.no_hp_suami, newItem.email_suami, newItem.created_at, newItem.updated_at]
+            );
+
+            if (result.affectedRows === 0) {
+                return h.response({ status: 'fail', message: 'Failed to add pregnant mother data' }).code(400);
             }
 
-            const responsePayload = {
-                status: 'success',
-                data: data[0]
-            };
+            const [newData] = await db.query(
+                `SELECT * FROM IbuHamil WHERE ibu_hamil_id = ?`,
+                [result.insertId]
+            );
 
-            return h.response(responsePayload).code(201);
+            return h.response({ status: 'success', data: newData[0] }).code(201);
         } catch (error) {
+            console.error('Error adding data:', error);
             return h.response({ status: 'fail', message: error.message }).code(500);
         }
     },
@@ -66,44 +66,31 @@ const dataController = {
         try {
             const { id } = request.params;
 
-            const { data, error } = await supabase
-                .from('IbuHamil')
-                .select('*')
-                .eq('ibu_hamil_id', id)
-                .single();
-
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
+            const [data] = await db.query(
+                `SELECT * FROM IbuHamil WHERE ibu_hamil_id = ?`,
+                [id]
+            );
 
             if (data.length === 0) {
                 return h.response({ status: 'fail', message: 'Mother pregnant not found' }).code(404);
             }
-    
-            const responsePayload = {
-                status: 'success',
-                data: data
-            };
-    
-            return h.response(responsePayload).code(200);
+
+            return h.response({ status: 'success', data: data[0] }).code(200);
         } catch (error) {
-            console.error('Error fetching document:', error);
-            return h.response({ status: 'fail', message: 'Error fetching document' }).code(500);
+            console.error('Error fetching data:', error);
+            return h.response({ status: 'fail', message: 'Error fetching data' }).code(500);
         }
     },
 
     getAllPregnantMother: async (request, h) => {
         try {
-            const { data, error } = await supabase
-                .from('IbuHamil')
-                .select('*');
-    
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(400);
-            }
-    
-            return h.response({ status: 'success', data: data }).code(200);
+            const [data] = await db.query(
+                `SELECT * FROM IbuHamil`
+            );
+
+            return h.response({ status: 'success', data }).code(200);
         } catch (error) {
+            console.error('Error fetching data:', error);
             return h.response({ status: 'fail', message: 'Error fetching data' }).code(500);
         }
     },
@@ -140,33 +127,30 @@ const dataController = {
                 updated_at: new Date().toISOString()
             };
 
+            // Remove undefined values
             Object.keys(updatedItem).forEach(key => {
                 if (updatedItem[key] === undefined) {
                     delete updatedItem[key];
                 }
             });
 
-            const { data, error } = await supabase
-            .from('IbuHamil')
-            .update(updatedItem)
-            .eq('ibu_hamil_id', id)
-            .select('*');
+            const [updateResult] = await db.query(
+                `UPDATE IbuHamil SET ? WHERE ibu_hamil_id = ?`,
+                [updatedItem, id]
+            );
 
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
-
-            if (data.length === 0) {
+            if (updateResult.affectedRows === 0) {
                 return h.response({ status: 'fail', message: 'Mother Pregnant not found' }).code(404);
             }
 
-            const responsePayload = {
-                status: 'success',
-                data: data[0]
-            };
-    
-            return h.response(responsePayload).code(200);
+            const [updatedData] = await db.query(
+                `SELECT * FROM IbuHamil WHERE ibu_hamil_id = ?`,
+                [id]
+            );
+
+            return h.response({ status: 'success', data: updatedData[0] }).code(200);
         } catch (error) {
+            console.error('Error updating data:', error);
             return h.response({ status: 'fail', message: error.message }).code(500);
         }
     },
@@ -175,23 +159,18 @@ const dataController = {
         try {
             const { id } = request.params;
 
-            const { data, error } = await supabase
-            .from('IbuHamil')
-            .delete()
-            .eq('ibu_hamil_id', id)
-            .select('*');
+            const [deleteResult] = await db.query(
+                `DELETE FROM IbuHamil WHERE ibu_hamil_id = ?`,
+                [id]
+            );
 
-            if (error) {
-                console.error('Error deleting document:', error);
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
-
-            if (data.length === 0) {
+            if (deleteResult.affectedRows === 0) {
                 return h.response({ status: 'fail', message: 'Mother Pregnant not found' }).code(404);
             }
 
             return h.response({ status: 'success', message: 'Mother Pregnant deleted successfully' }).code(200);
         } catch (error) {
+            console.error('Error deleting data:', error);
             return h.response({ status: 'fail', message: error.message }).code(500);
         }
     },
@@ -200,22 +179,20 @@ const dataController = {
     createRiskAnemia: async (request, h) => {
         try {
             const {
-            ibu_hamil_id,
-            usia_kehamilan,
-            jumlah_anak,
-            riwayat_anemia,
-            konsumsi_ttd_7hari,
-            hasil_hb,
-            resiko,
+                ibu_hamil_id,
+                usia_kehamilan,
+                jumlah_anak,
+                riwayat_anemia,
+                konsumsi_ttd_7hari,
+                hasil_hb,
+                resiko,
             } = request.payload;
-    
+
             if (!ibu_hamil_id) {
-            const response = h.response({
-                status: 'fail',
-                message: 'Failed to add Risk Anemia data. Please provide the risk anemia data id.',
-            });
-            response.code(400);
-            return response;
+                return h.response({
+                    status: 'fail',
+                    message: 'Failed to add Risk Anemia data. Please provide the risk anemia data id.',
+                }).code(400);
             }
 
             const newItem = {
@@ -229,24 +206,24 @@ const dataController = {
                 created_at: new Date().toISOString(),
             };
 
-            const { data, error } = await supabase
-            .from('ResikoAnemia')
-            .insert([newItem])
-            .select('*');
+            const [result] = await db.query(
+                `INSERT INTO ResikoAnemia (ibu_hamil_id, usia_kehamilan, jumlah_anak, riwayat_anemia, konsumsi_ttd_7hari, hasil_hb, resiko, created_at) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                [newItem.ibu_hamil_id, newItem.usia_kehamilan, newItem.jumlah_anak, newItem.riwayat_anemia, newItem.konsumsi_ttd_7hari, newItem.hasil_hb, newItem.resiko, newItem.created_at]
+            );
 
-            if (error) {
-                console.error('Error adding data:', error);
-                return h.response({ status: 'fail', message: error.message }).code(500);
+            if (result.affectedRows === 0) {
+                return h.response({ status: 'fail', message: 'Failed to add Risk Anemia data' }).code(400);
             }
 
-            const responsePayload = {
-                status: 'success',
-                data: data[0]
-            };
+            const [newData] = await db.query(
+                `SELECT * FROM ResikoAnemia WHERE resiko_anemia_id = ?`,
+                [result.insertId]
+            );
 
-            return h.response(responsePayload).code(201);
+            return h.response({ status: 'success', data: newData[0] }).code(201);
         } catch (error) {
-            console.error('Error during request handling:', error);
+            console.error('Error adding data:', error);
             return h.response({ status: 'fail', message: error.message }).code(500);
         }
     },
@@ -255,46 +232,32 @@ const dataController = {
         try {
             const { id } = request.params;
 
-            const { data, error } = await supabase
-                .from('ResikoAnemia')
-                .select('*')
-                .eq('resiko_anemia_id', id)
-                .single();
-
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
+            const [data] = await db.query(
+                `SELECT * FROM ResikoAnemia WHERE resiko_anemia_id = ?`,
+                [id]
+            );
 
             if (data.length === 0) {
                 return h.response({ status: 'fail', message: 'Risk of Anemia not found' }).code(404);
             }
-            
-            const responsePayload = {
-                status: 'success',
-                data: data
-            };
 
-            return h.response(responsePayload).code(200);
+            return h.response({ status: 'success', data: data[0] }).code(200);
         } catch (error) {
-            console.error('Error fetching document:', error);
-            return h.response({ status: 'fail', message: 'Error fetching document' }).code(500);
+            console.error('Error fetching data:', error);
+            return h.response({ status: 'fail', message: 'Error fetching data' }).code(500);
         }
     },
 
     getAllRiskAnemia: async (request, h) => {
         try {
-            const { data, error } = await supabase
-                .from('ResikoAnemia')
-                .select('*');
-    
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(400);
-            }
+            const [data] = await db.query(
+                `SELECT * FROM ResikoAnemia`
+            );
 
-            return h.response({ status: 'success', data: data }).code(200);
+            return h.response({ status: 'success', data }).code(200);
         } catch (error) {
-            console.error('Error fetching documents:', error);
-            return h.response({ status: 'fail', message: 'Error fetching documents' }).code(500);
+            console.error('Error fetching data:', error);
+            return h.response({ status: 'fail', message: 'Error fetching data' }).code(500);
         }
     },
 
@@ -321,34 +284,30 @@ const dataController = {
                 resiko
             };
 
+            // Remove undefined values
             Object.keys(updatedItem).forEach(key => {
                 if (updatedItem[key] === undefined) {
                     delete updatedItem[key];
                 }
             });
 
-            const { data, error } = await supabase
-            .from('ResikoAnemia')
-            .update(updatedItem)
-            .eq('resiko_anemia_id', id)
-            .select('*');
+            const [updateResult] = await db.query(
+                `UPDATE ResikoAnemia SET ? WHERE resiko_anemia_id = ?`,
+                [updatedItem, id]
+            );
 
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
-
-            if (data.length === 0) {
+            if (updateResult.affectedRows === 0) {
                 return h.response({ status: 'fail', message: 'Risk of Anemia data not found' }).code(404);
             }
 
-            const responsePayload = {
-                status: 'success',
-                data: data[0]
-            };
+            const [updatedData] = await db.query(
+                `SELECT * FROM ResikoAnemia WHERE resiko_anemia_id = ?`,
+                [id]
+            );
 
-            return h.response(responsePayload).code(200);
+            return h.response({ status: 'success', data: updatedData[0] }).code(200);
         } catch (error) {
-            console.error('Error during request handling:', error);
+            console.error('Error updating data:', error);
             return h.response({ status: 'fail', message: error.message }).code(500);
         }
     },
@@ -357,24 +316,19 @@ const dataController = {
         try {
             const { id } = request.params;
 
-            const { data, error } = await supabase
-            .from('ResikoAnemia')
-            .delete()
-            .eq('resiko_anemia_id', id)
-            .select('*');
+            const [deleteResult] = await db.query(
+                `DELETE FROM ResikoAnemia WHERE resiko_anemia_id = ?`,
+                [id]
+            );
 
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
-
-            if (data.length === 0) {
+            if (deleteResult.affectedRows === 0) {
                 return h.response({ status: 'fail', message: 'Risk of Anemia data not found' }).code(404);
             }
 
             return h.response({ status: 'success', message: 'Risk of Anemia data deleted successfully' }).code(200);
         } catch (error) {
-            console.error('Error deleting document:', error);
-            return h.response({ status: 'fail', message: 'Error deleting document' }).code(500);
+            console.error('Error deleting data:', error);
+            return h.response({ status: 'fail', message: error.message }).code(500);
         }
     },
     
@@ -401,14 +355,12 @@ const dataController = {
                 makan_malam_buah,
                 total_kalori,
             } = request.payload;
-    
+
             if (!ibu_hamil_id) {
-            const response = h.response({
-                status: 'fail',
-                message: 'Failed to add eating journal data. Please provide the eating journal id.',
-            });
-            response.code(400);
-            return response;
+                return h.response({
+                    status: 'fail',
+                    message: 'Failed to add eating journal data. Please provide the eating journal id.',
+                }).code(400);
             }
 
             const newItem = {
@@ -433,73 +385,58 @@ const dataController = {
                 created_at: new Date().toISOString(),
             };
 
-            const { data, error } = await supabase
-                .from('JurnalMakan')
-                .insert([newItem])
-                .select('*');
+            const [result] = await db.query(
+                `INSERT INTO JurnalMakan (ibu_hamil_id, tanggal, sarapan_karbohidrat, sarapan_lauk_hewani, sarapan_lauk_nabati, sarapan_sayur, sarapan_buah, makan_siang_karbohidrat, makan_siang_lauk_hewani, makan_siang_lauk_nabati, makan_siang_sayur, makan_siang_buah, makan_malam_karbohidrat, makan_malam_lauk_hewani, makan_malam_lauk_nabati, makan_malam_sayur, makan_malam_buah, total_kalori, created_at) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [newItem.ibu_hamil_id, newItem.tanggal, newItem.sarapan_karbohidrat, newItem.sarapan_lauk_hewani, newItem.sarapan_lauk_nabati, newItem.sarapan_sayur, newItem.sarapan_buah, newItem.makan_siang_karbohidrat, newItem.makan_siang_lauk_hewani, newItem.makan_siang_lauk_nabati, newItem.makan_siang_sayur, newItem.makan_siang_buah, newItem.makan_malam_karbohidrat, newItem.makan_malam_lauk_hewani, newItem.makan_malam_lauk_nabati, newItem.makan_malam_sayur, newItem.makan_malam_buah, newItem.total_kalori, newItem.created_at]
+            );
 
-            if (error) {
-                console.error('Error adding document:', error);
-                return h.response({ status: 'fail', message: error.message }).code(500);
+            if (result.affectedRows === 0) {
+                return h.response({ status: 'fail', message: 'Failed to add Eating Journal data' }).code(400);
             }
 
-            const responsePayload = {
-                status: 'success',
-                data: data[0]
-            };
+            const [newData] = await db.query(
+                `SELECT * FROM JurnalMakan WHERE jurnal_makan_id = ?`,
+                [result.insertId]
+            );
 
-            return h.response(responsePayload).code(201);
-
+            return h.response({ status: 'success', data: newData[0] }).code(201);
         } catch (error) {
-            console.error('Error during request handling:', error);
+            console.error('Error adding data:', error);
             return h.response({ status: 'fail', message: error.message }).code(500);
         }
     },
-    
+
     getEatingJournal: async (request, h) => {
         try {
             const { id } = request.params;
 
-            const { data, error } = await supabase
-                .from('JurnalMakan')
-                .select('*')
-                .eq('jurnal_makan_id', id)
-                .single();
-            
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
+            const [data] = await db.query(
+                `SELECT * FROM JurnalMakan WHERE jurnal_makan_id = ?`,
+                [id]
+            );
 
             if (data.length === 0) {
-                return h.response({ status: 'fail', message: 'Eating jurnal data not found' }).code(404);
+                return h.response({ status: 'fail', message: 'Eating Journal data not found' }).code(404);
             }
-    
-            const responsePayload = {
-                status: 'success',
-                data: data
-            };
-    
-            return h.response(responsePayload).code(200);
+
+            return h.response({ status: 'success', data: data[0] }).code(200);
         } catch (error) {
-            console.error('Error fetching document:', error);
-            return h.response({ status: 'fail', message: 'Error fetching document' }).code(500);
+            console.error('Error fetching data:', error);
+            return h.response({ status: 'fail', message: 'Error fetching data' }).code(500);
         }
     },
 
     getAllEatingJournal: async (request, h) => {
         try {
-            const { data, error } = await supabase
-                .from('JurnalMakan')
-                .select('*');
-    
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(400);
-            }
-    
-            return h.response({ status: 'success', data: data }).code(200);
+            const [data] = await db.query(
+                `SELECT * FROM JurnalMakan`
+            );
+
+            return h.response({ status: 'success', data }).code(200);
         } catch (error) {
-            console.error('Error fetching documents:', error);
-            return h.response({ status: 'fail', message: 'Error fetching documents' }).code(500);
+            console.error('Error fetching data:', error);
+            return h.response({ status: 'fail', message: 'Error fetching data' }).code(500);
         }
     },
 
@@ -548,34 +485,30 @@ const dataController = {
                 total_kalori,
             };
 
+            // Remove undefined values
             Object.keys(updatedItem).forEach(key => {
                 if (updatedItem[key] === undefined) {
                     delete updatedItem[key];
                 }
             });
 
-            const { data, error } = await supabase
-            .from('JurnalMakan')
-            .update(updatedItem)
-            .eq('jurnal_makan_id', id)
-            .select('*');
+            const [updateResult] = await db.query(
+                `UPDATE JurnalMakan SET ? WHERE jurnal_makan_id = ?`,
+                [updatedItem, id]
+            );
 
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
-
-            if (data.length === 0) {
+            if (updateResult.affectedRows === 0) {
                 return h.response({ status: 'fail', message: 'Eating Journal data not found' }).code(404);
             }
 
-            const responsePayload = {
-                status: 'success',
-                data: data[0]
-            };
-    
-            return h.response(responsePayload).code(200);
+            const [updatedData] = await db.query(
+                `SELECT * FROM JurnalMakan WHERE jurnal_makan_id = ?`,
+                [id]
+            );
+
+            return h.response({ status: 'success', data: updatedData[0] }).code(200);
         } catch (error) {
-            console.error('Error during request handling:', error);
+            console.error('Error updating data:', error);
             return h.response({ status: 'fail', message: error.message }).code(500);
         }
     },
@@ -584,25 +517,19 @@ const dataController = {
         try {
             const { id } = request.params;
 
-            const { data, error } = await supabase
-            .from('JurnalMakan')
-            .delete()
-            .eq('jurnal_makan_id', id)
-            .select('*');
+            const [deleteResult] = await db.query(
+                `DELETE FROM JurnalMakan WHERE jurnal_makan_id = ?`,
+                [id]
+            );
 
-            if (error) {
-                console.error('Error deleting document:', error);
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
-
-            if (data.length === 0) {
+            if (deleteResult.affectedRows === 0) {
                 return h.response({ status: 'fail', message: 'Eating Journal data not found' }).code(404);
             }
 
             return h.response({ status: 'success', message: 'Eating Journal data deleted successfully' }).code(200);
         } catch (error) {
-            console.error('Error deleting document:', error);
-            return h.response({ status: 'fail', message: 'Error deleting document' }).code(500);
+            console.error('Error deleting data:', error);
+            return h.response({ status: 'fail', message: error.message }).code(500);
         }
     },
 
@@ -617,36 +544,34 @@ const dataController = {
             } = request.payload;
     
             if (!ibu_hamil_id) {
-            const response = h.response({
-                status: 'fail',
-                message: 'Failed to add reminder ttd data. Please provide the reminder ttd id.',
-            });
-            response.code(400);
-            return response;
+                const response = h.response({
+                    status: 'fail',
+                    message: 'Failed to add reminder ttd data. Please provide the ibu_hamil_id.',
+                });
+                response.code(400);
+                return response;
             }
-
+    
             const newItem = {
                 ibu_hamil_id,
                 waktu_reminder_1,
                 waktu_reminder_2,
                 is_active,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
+                created_at: new Date(),
+                updated_at: new Date()
             };
-
-            const { data, error } = await supabase
-                .from('ReminderTTD')
-                .insert([newItem])
-                .select('*');
     
-            if (error) {
-                console.error('Error adding data:', error);
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
+            const [results] = await db.query(
+                'INSERT INTO ReminderTTD SET ?',
+                newItem
+            );
     
             const responsePayload = {
                 status: 'success',
-                data: data[0]
+                data: {
+                    id: results.insertId,
+                    ...newItem
+                }
             };
     
             return h.response(responsePayload).code(201);
@@ -654,55 +579,46 @@ const dataController = {
             console.error('Error during request handling:', error);
             return h.response({ status: 'fail', message: error.message }).code(500);
         }
-    },
+    },    
     
     getReminderTtd: async (request, h) => {
         try {
             const { id } = request.params;
-
-            const { data, error } = await supabase
-                .from('ReminderTTD')
-                .select('*')
-                .eq('reminder_id', id)
-                .single();
-
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
-
-            if (data.length === 0) {
+    
+            const [results] = await db.query(
+                'SELECT * FROM ReminderTTD WHERE reminder_id = ?',
+                [id]
+            );
+    
+            if (results.length === 0) {
                 return h.response({ status: 'fail', message: 'Reminder TTD data not found' }).code(404);
             }
-            
+    
             const responsePayload = {
                 status: 'success',
-                data: data
+                data: results[0]
             };
-
+    
             return h.response(responsePayload).code(200);
         } catch (error) {
             console.error('Error fetching document:', error);
             return h.response({ status: 'fail', message: 'Error fetching document' }).code(500);
         }
-    },
+    },    
 
     getAllReminderTtd: async (request, h) => {
         try {
-            const { data, error } = await supabase
-                .from('ReminderTTD')
-                .select('*');
+            const [results] = await db.query(
+                'SELECT * FROM ReminderTTD'
+            );
     
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(400);
-            }
-
-            return h.response({ status: 'success', data: data }).code(200);
+            return h.response({ status: 'success', data: results }).code(200);
         } catch (error) {
             console.error('Error fetching documents:', error);
             return h.response({ status: 'fail', message: 'Error fetching documents' }).code(500);
         }
     },
-
+    
     updateReminderTtd: async (request, h) => {
         try {
             const { id } = request.params;
@@ -712,38 +628,32 @@ const dataController = {
                 waktu_reminder_2,
                 is_active,
             } = request.payload;
-
+    
             const updatedItem = {
                 ibu_hamil_id,
                 waktu_reminder_1,
                 waktu_reminder_2,
                 is_active,
-                updated_at: new Date().toISOString()
+                updated_at: new Date()
             };
-
-            Object.keys(updatedItem).forEach(key => {
-                if (updatedItem[key] === undefined) {
-                    delete updatedItem[key];
-                }
-            });
-
-            const { data, error } = await supabase
-            .from('ReminderTTD')
-            .update(updatedItem)
-            .eq('reminder_id', id)
-            .select('*');
-
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
-
-            if (data.length === 0) {
+    
+            const [results] = await db.query(
+                'UPDATE ReminderTTD SET ? WHERE reminder_id = ?',
+                [updatedItem, id]
+            );
+    
+            if (results.affectedRows === 0) {
                 return h.response({ status: 'fail', message: 'Reminder TTD not found' }).code(404);
             }
-
+    
+            const [updatedResults] = await db.query(
+                'SELECT * FROM ReminderTTD WHERE reminder_id = ?',
+                [id]
+            );
+    
             const responsePayload = {
                 status: 'success',
-                data: data[0]
+                data: updatedResults[0]
             };
     
             return h.response(responsePayload).code(200);
@@ -756,28 +666,23 @@ const dataController = {
     deleteReminderTtd: async (request, h) => {
         try {
             const { id } = request.params;
-
-            const { data, error } = await supabase
-            .from('ReminderTTD')
-            .delete()
-            .eq('reminder_id', id)
-            .select('*');
-
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
-
-            if (data.length === 0) {
+    
+            const [results] = await db.query(
+                'DELETE FROM ReminderTTD WHERE reminder_id = ?',
+                [id]
+            );
+    
+            if (results.affectedRows === 0) {
                 return h.response({ status: 'fail', message: 'Reminder TTD data not found' }).code(404);
             }
-
+    
             return h.response({ status: 'success', message: 'Reminder TTD data deleted successfully' }).code(200);
         } catch (error) {
             console.error('Error deleting document:', error);
             return h.response({ status: 'fail', message: 'Error deleting document' }).code(500);
         }
     },
-
+    
     // Check HB
     createCheckHB: async (request, h) => {
         try {
@@ -788,36 +693,34 @@ const dataController = {
             } = request.payload;
     
             if (!ibu_hamil_id) {
-            const response = h.response({
-                status: 'fail',
-                message: 'Failed to add Check HB data. Please provide the Check HB id.',
-            });
-            response.code(400);
-            return response;
+                const response = h.response({
+                    status: 'fail',
+                    message: 'Failed to add Check HB data. Please provide the ibu_hamil_id.',
+                });
+                response.code(400);
+                return response;
             }
-
+    
             const newItem = {
                 ibu_hamil_id,
                 tanggal,
                 nilai_hb,
-                created_at: new Date().toISOString(),
+                created_at: new Date()
             };
-
-            const { data, error } = await supabase
-            .from('CekHB')
-            .insert([newItem])
-            .select('*');
-
-            if (error) {
-                console.error('Error adding document:', error);
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
-
+    
+            const [results] = await db.query(
+                'INSERT INTO CekHB SET ?',
+                newItem
+            );
+    
             const responsePayload = {
                 status: 'success',
-                data: data[0]
+                data: {
+                    cek_hb_id: results.insertId,
+                    ...newItem
+                }
             };
-
+    
             return h.response(responsePayload).code(201);
         } catch (error) {
             console.error('Error during request handling:', error);
@@ -828,24 +731,19 @@ const dataController = {
     getCheckHB: async (request, h) => {
         try {
             const { id } = request.params;
-
-            const { data, error } = await supabase
-                .from('CekHB')
-                .select('*')
-                .eq('cek_hb_id', id)
-                .single();
-            
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
-
-            if (data.length === 0) {
+    
+            const [results] = await db.query(
+                'SELECT * FROM CekHB WHERE cek_hb_id = ?',
+                [id]
+            );
+    
+            if (results.length === 0) {
                 return h.response({ status: 'fail', message: 'Check HB data not found' }).code(404);
             }
     
             const responsePayload = {
                 status: 'success',
-                data: data
+                data: results[0]
             };
     
             return h.response(responsePayload).code(200);
@@ -854,18 +752,14 @@ const dataController = {
             return h.response({ status: 'fail', message: 'Error fetching document' }).code(500);
         }
     },
-
+    
     getAllCheckHB: async (request, h) => {
         try {
-            const { data, error } = await supabase
-                .from('CekHB')
-                .select('*');
+            const [results] = await db.query(
+                'SELECT * FROM CekHB'
+            );
     
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(400);
-            }
-    
-            return h.response({ status: 'success', data: data }).code(200);
+            return h.response({ status: 'success', data: results }).code(200);
         } catch (error) {
             console.error('Error fetching documents:', error);
             return h.response({ status: 'fail', message: 'Error fetching documents' }).code(500);
@@ -880,36 +774,37 @@ const dataController = {
                 tanggal,
                 nilai_hb,
             } = request.payload;
-
+    
             const updatedItem = {
                 ibu_hamil_id,
                 tanggal,
                 nilai_hb,
+                updated_at: new Date()
             };
-
+    
             Object.keys(updatedItem).forEach(key => {
                 if (updatedItem[key] === undefined) {
                     delete updatedItem[key];
                 }
             });
-
-            const { data, error } = await supabase
-            .from('CekHB')
-            .update(updatedItem)
-            .eq('cek_hb_id', id)
-            .select('*');
-
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
-
-            if (data.length === 0) {
+    
+            const [results] = await db.query(
+                'UPDATE CekHB SET ? WHERE cek_hb_id = ?',
+                [updatedItem, id]
+            );
+    
+            if (results.affectedRows === 0) {
                 return h.response({ status: 'fail', message: 'Check HB data not found' }).code(404);
             }
-
+    
+            const [updatedResults] = await db.query(
+                'SELECT * FROM CekHB WHERE cek_hb_id = ?',
+                [id]
+            );
+    
             const responsePayload = {
                 status: 'success',
-                data: data[0]
+                data: updatedResults[0]
             };
     
             return h.response(responsePayload).code(200);
@@ -918,26 +813,20 @@ const dataController = {
             return h.response({ status: 'fail', message: error.message }).code(500);
         }
     },
-
+    
     deleteCheckHB: async (request, h) => {
         try {
             const { id } = request.params;
-
-            const { data, error } = await supabase
-            .from('CekHB')
-            .delete()
-            .eq('cek_hb_id', id)
-            .select('*');
-
-            if (error) {
-                console.error('Error deleting document:', error);
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
-
-            if (data.length === 0) {
+    
+            const [results] = await db.query(
+                'DELETE FROM CekHB WHERE cek_hb_id = ?',
+                [id]
+            );
+    
+            if (results.affectedRows === 0) {
                 return h.response({ status: 'fail', message: 'Check HB data not found' }).code(404);
             }
-
+    
             return h.response({ status: 'success', message: 'Check HB deleted successfully' }).code(200);
         } catch (error) {
             console.error('Error deleting document:', error);
@@ -955,36 +844,34 @@ const dataController = {
             } = request.payload;
     
             if (!ibu_hamil_id) {
-            const response = h.response({
-                status: 'fail',
-                message: 'Failed to add consumption ttd data. Please provide the consumption ttd id.',
-            });
-            response.code(400);
-            return response;
+                const response = h.response({
+                    status: 'fail',
+                    message: 'Failed to add consumption ttd data. Please provide the ibu_hamil_id.',
+                });
+                response.code(400);
+                return response;
             }
-
+    
             const newItem = {
                 ibu_hamil_id,
                 tanggal_waktu,
                 minum_vit_c,
-                created_at: new Date().toISOString(),
+                created_at: new Date()
             };
-
-            const { data, error } = await supabase
-            .from('KonsumsiTTD')
-            .insert([newItem])
-            .select('*');
-
-            if (error) {
-                console.error('Error adding document:', error);
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
-
+    
+            const [results] = await db.query(
+                'INSERT INTO KonsumsiTTD SET ?',
+                newItem
+            );
+    
             const responsePayload = {
                 status: 'success',
-                data: data[0]
+                data: {
+                    konsumsi_ttd_id: results.insertId,
+                    ...newItem
+                }
             };
-
+    
             return h.response(responsePayload).code(201);
         } catch (error) {
             console.error('Error during request handling:', error);
@@ -995,24 +882,19 @@ const dataController = {
     getConsumptionTtd: async (request, h) => {
         try {
             const { id } = request.params;
-
-            const { data, error } = await supabase
-                .from('KonsumsiTTD')
-                .select('*')
-                .eq('konsumsi_ttd_id', id)
-                .single();
-            
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
-
-            if (data.length === 0) {
+    
+            const [results] = await db.query(
+                'SELECT * FROM KonsumsiTTD WHERE konsumsi_ttd_id = ?',
+                [id]
+            );
+    
+            if (results.length === 0) {
                 return h.response({ status: 'fail', message: 'Consumption ttd data not found' }).code(404);
             }
     
             const responsePayload = {
                 status: 'success',
-                data: data
+                data: results[0]
             };
     
             return h.response(responsePayload).code(200);
@@ -1021,24 +903,20 @@ const dataController = {
             return h.response({ status: 'fail', message: 'Error fetching document' }).code(500);
         }
     },
-
+    
     getAllConsumptionTtd: async (request, h) => {
         try {
-            const { data, error } = await supabase
-                .from('KonsumsiTTD')
-                .select('*');
+            const [results] = await db.query(
+                'SELECT * FROM KonsumsiTTD'
+            );
     
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(400);
-            }
-    
-            return h.response({ status: 'success', data: data }).code(200);
+            return h.response({ status: 'success', data: results }).code(200);
         } catch (error) {
             console.error('Error fetching documents:', error);
             return h.response({ status: 'fail', message: 'Error fetching documents' }).code(500);
         }
     },
-
+    
     updateConsumptionTtd: async (request, h) => {
         try {
             const { id } = request.params;
@@ -1047,36 +925,37 @@ const dataController = {
                 tanggal_waktu,
                 minum_vit_c,
             } = request.payload;
-
+    
             const updatedItem = {
                 ibu_hamil_id,
                 tanggal_waktu,
                 minum_vit_c,
+                updated_at: new Date()
             };
-
+    
             Object.keys(updatedItem).forEach(key => {
                 if (updatedItem[key] === undefined) {
                     delete updatedItem[key];
                 }
             });
-
-            const { data, error } = await supabase
-            .from('KonsumsiTTD')
-            .update(updatedItem)
-            .eq('konsumsi_ttd_id', id)
-            .select('*');
-
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
-
-            if (data.length === 0) {
+    
+            const [results] = await db.query(
+                'UPDATE KonsumsiTTD SET ? WHERE konsumsi_ttd_id = ?',
+                [updatedItem, id]
+            );
+    
+            if (results.affectedRows === 0) {
                 return h.response({ status: 'fail', message: 'Consumption ttd data not found' }).code(404);
             }
-
+    
+            const [updatedResults] = await db.query(
+                'SELECT * FROM KonsumsiTTD WHERE konsumsi_ttd_id = ?',
+                [id]
+            );
+    
             const responsePayload = {
                 status: 'success',
-                data: data[0]
+                data: updatedResults[0]
             };
     
             return h.response(responsePayload).code(200);
@@ -1085,34 +964,26 @@ const dataController = {
             return h.response({ status: 'fail', message: error.message }).code(500);
         }
     },
-
+    
     deleteConsumptionTtd: async (request, h) => {
         try {
             const { id } = request.params;
-
-            const { data, error } = await supabase
-            .from('KonsumsiTTD')
-            .delete()
-            .eq('konsumsi_ttd_id', id)
-            .select('*');
-
-            if (error) {
-                console.error('Error deleting document:', error);
-                return h.response({ status: 'fail', message: error.message }).code(500);
+    
+            const [results] = await db.query(
+                'DELETE FROM KonsumsiTTD WHERE konsumsi_ttd_id = ?',
+                [id]
+            );
+    
+            if (results.affectedRows === 0) {
+                return h.response({ status: 'fail', message: 'Consumption ttd data not found' }).code(404);
             }
-
-            if (data.length === 0) {
-                return h.response({ status: 'fail', message: 'Officer not found' }).code(404);
-            }
-
+    
             return h.response({ status: 'success', message: 'Consumption TTD deleted successfully' }).code(200);
         } catch (error) {
             console.error('Error deleting document:', error);
             return h.response({ status: 'fail', message: 'Error deleting document' }).code(500);
         }
     },
-
-
 };
 
 module.exports = dataController;

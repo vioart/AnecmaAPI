@@ -1,103 +1,115 @@
-const axios = require('axios');
-const { OAuth2Client } = require('google-auth-library');
-const supabase = require('../config/supabase'); 
+const jwt = require('jsonwebtoken');
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
-async function validateGoogleToken(idToken) {
-  try {
-    const ticket = await client.verifyIdToken({
-      idToken: idToken,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-    const payload = ticket.getPayload();
-    return {
-      isValid: true,
-      credentials: {
-        id: payload.sub,
-        email: payload.email,
-        name: payload.name,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      },
-    };
-  } catch (error) {
-    console.error('Error validating Google token:', error.message);
-    return {
-      isValid: false,
-      credentials: null,
-    };
-  }
-}
-
-async function upsertUser(credentials) {
-  const { data, error } = await supabase
-    .from('Users')
-    .upsert(
-      { 
-        google_id: credentials.id, 
-        email: credentials.email, 
-        role: 'user',
-        updated_at: new Date().toISOString()
-      },
-      { onConflict: ['email'] }
-    );
-
-  if (error) {
-    console.error('Error inserting/updating user in Supabase:', error.message);
-    throw new Error('Error inserting/updating user in Supabase');
-  }
-  return data;
-}
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const authController = {
-  SignIn: async(request, h) => {
-    const code = request.query.code;
+    login: async (request, h) => {
+        try {
+            const { provider, user: { email } } = request.payload;
 
-    try {
-      const response = await axios.post('https://oauth2.googleapis.com/token', {
-        code,
-        client_id: process.env.GOOGLE_CLIENT_ID,
-        client_secret: process.env.GOOGLE_CLIENT_SECRET,
-        redirect_uri: 'http://localhost:3000/auth/google/callback',
-        grant_type: 'authorization_code'
-      });
+            if (provider !== 'google') {
+                return h.response({
+                    success: false,
+                    message: 'Unsupported provider.',
+                }).code(400);
+            }
 
-      if (!response.data || !response.data.id_token) {
-        throw new Error('Failed to get id_token from Google response');
-      }
+            // Check if the user already exists based on email
+            const [existingUser] = await db.query(
+                `SELECT * FROM Users WHERE email = ?`,
+                [email]
+            );
 
-      const idToken = response.data.id_token;
-      const { isValid, credentials } = await validateGoogleToken(idToken);
+            let user;
 
-      if (isValid) {
-        await upsertUser(credentials);
+            if (existingUser.length > 0) {
+                user = existingUser[0];
+            } else {
+                // Insert new user
+                const newUser = {
+                    email,
+                    role: 'user',
+                    created_at: dayjs().tz('Asia/Jakarta').format(),
+                };
 
-        return h.response({
-          message: 'Login successful',
-          user: credentials
-        }).code(200);
-      } else {
-        return h.response({
-          message: 'Invalid token'
-        }).code(401);
-      }
-    } catch (error) {
-      console.error('Error exchanging code for token:', error.message);
-      return h.response({
-        message: 'Error exchanging code for token'
-      }).code(500);
-    }
-  },
+                const [insertResult] = await db.query(
+                    `INSERT INTO Users (email, role, created_at) VALUES (?, ?, ?)`,
+                    [newUser.email, newUser.role, newUser.created_at]
+                );
 
-  CallbackSignIn: async(request, h) => {
-    const redirectUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
-      `client_id=${process.env.GOOGLE_CLIENT_ID}&` +
-      `redirect_uri=http://localhost:3000/auth/google/callback&` +
-      `response_type=code&` +
-      `scope=email profile`;
-    return h.redirect(redirectUrl);
-  },
+                if (insertResult.affectedRows === 0) {
+                    return h.response({ success: false, message: 'Failed to create user' }).code(500);
+                }
+
+                user = { ...newUser, id: insertResult.insertId };
+
+                // Insert into specific table based on role
+                let insertTable;
+                if (user.role === 'user') insertTable = 'IbuHamil';
+                else if (user.role === 'suami') insertTable = 'Suami';
+                else if (user.role === 'petugas') insertTable = 'Petugas';
+                else if (user.role === 'super-admin') insertTable = 'Super-admin';
+
+                if (insertTable) {
+                    const [insertDataResult] = await db.query(
+                        `INSERT INTO ${insertTable} (user_id, nama, created_at, updated_at) VALUES (?, ?, ?, ?)`,
+                        [user.id, 'user', dayjs().tz('Asia/Jakarta').format(), dayjs().tz('Asia/Jakarta').format()]
+                    );
+
+                    if (insertDataResult.affectedRows === 0) {
+                        return h.response({ success: false, message: `Failed to create ${insertTable}` }).code(500);
+                    }
+                }
+            }
+
+            // Check if the user's role is allowed
+            const allowedRoles = ['user', 'super-admin', 'suami', 'petugas'];
+            if (!allowedRoles.includes(user.role)) {
+                return h.response({
+                    success: false,
+                    message: 'Unauthorized role.',
+                }).code(403);
+            }
+
+            if (!process.env.JWT_SECRET) {
+                throw new Error('JWT_SECRET is not defined in the environment variables.');
+            }
+
+            // Create token with 29 days expiration
+            const token = jwt.sign(
+                { id: user.id, email: user.email, role: user.role },
+                process.env.JWT_SECRET,
+                { expiresIn: '29d' }
+            );
+
+            const expiresAt = dayjs().add(29, 'day').format();
+            const [upsertResult] = await db.query(
+                `INSERT INTO Account (userId, provider, access_token, expires_at, created_at) 
+                 VALUES (?, ?, ?, ?, ?) 
+                 ON DUPLICATE KEY UPDATE access_token = VALUES(access_token), expires_at = VALUES(expires_at), created_at = VALUES(created_at)`,
+                [user.id, 'google', token, expiresAt, dayjs().tz('Asia/Jakarta').format()]
+            );
+
+            if (upsertResult.affectedRows === 0) {
+                return h.response({ success: false, message: 'Failed to save token' }).code(500);
+            }
+
+            return h.response({
+                success: true,
+                data: { token },
+                message: "User login successful."
+            }).code(200);
+
+        } catch (error) {
+            console.error('Login error:', error);
+            return h.response({ success: false, message: error.message }).code(500);
+        }
+    },
 };
+
 
 module.exports = authController;

@@ -1,106 +1,80 @@
-const supabase = require('../config/supabase'); 
+const db = require('../config/database'); // Assuming this is your MySQL connection
 
 const healthCenterController = {
-    // Petugas Puskesmas
+    // Create Officer
     createOfficer: async (request, h) => {
         try {
-            const {
-                user_id,
-                puskesmas_id,
-                nama,
-            } = request.payload;
-    
+            const { user_id, puskesmas_id, nama } = request.payload;
+
             if (!puskesmas_id) {
-            const response = h.response({
-                status: 'fail',
-                message: 'Failed to add puskesmas officer data. Please provide the puskesmas officer data id.',
-            });
-            response.code(400);
-            return response;
+                return h.response({
+                    status: 'fail',
+                    message: 'Failed to add puskesmas officer data. Please provide the puskesmas officer data id.',
+                }).code(400);
             }
 
-            const newItem = {
-                user_id,
-                puskesmas_id,
-                nama,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-            };
+            const [result] = await db.query(
+                `INSERT INTO PetugasPuskesmas (user_id, puskesmas_id, nama, created_at, updated_at) 
+                 VALUES (?, ?, ?, ?, ?)`,
+                [user_id, puskesmas_id, nama, new Date().toISOString(), new Date().toISOString()]
+            );
 
-            const { data, error } = await supabase
-            .from('PetugasPuskesmas')
-            .insert([newItem])
-            .select('*');
-
-            if (error) {
-                console.error('Error adding document:', error);
-                return h.response({ status: 'fail', message: error.message }).code(500);
+            if (result.affectedRows === 0) {
+                return h.response({ status: 'fail', message: 'Failed to add puskesmas officer data' }).code(400);
             }
 
-            const responsePayload = {
-                status: 'success',
-                data: data[0]
-            };
+            const [newData] = await db.query(
+                `SELECT * FROM PetugasPuskesmas WHERE petugas_id = ?`,
+                [result.insertId]
+            );
 
-            return h.response(responsePayload).code(201);
+            return h.response({ status: 'success', data: newData[0] }).code(201);
         } catch (error) {
+            console.error('Error during request handling:', error);
             return h.response({ status: 'fail', message: error.message }).code(500);
         }
     },
-    
+
+    // Get Single Officer
     getOfficer: async (request, h) => {
         try {
             const { petugas_id } = request.params;
-    
-            const { data, error } = await supabase
-                .from('PetugasPuskesmas')
-                .select('*')
-                .eq('petugas_id', petugas_id)
-                .single();
-            
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
+
+            const [data] = await db.query(
+                `SELECT * FROM PetugasPuskesmas WHERE petugas_id = ?`,
+                [petugas_id]
+            );
 
             if (data.length === 0) {
                 return h.response({ status: 'fail', message: 'Officer not found' }).code(404);
             }
-    
-            const responsePayload = {
-                status: 'success',
-                data: data
-            };
-    
-            return h.response(responsePayload).code(200);
+
+            return h.response({ status: 'success', data: data[0] }).code(200);
         } catch (error) {
+            console.error('Error fetching data:', error);
             return h.response({ status: 'fail', message: 'Error fetching data' }).code(500);
         }
     },
 
+    // Get All Officers
     getAllOfficer: async (request, h) => {
         try {
-            const { data, error } = await supabase
-                .from('PetugasPuskesmas')
-                .select('*');
-    
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(400);
-            }
-    
-            return h.response({ status: 'success', data: data }).code(200);
+            const [data] = await db.query(
+                `SELECT * FROM PetugasPuskesmas`
+            );
+
+            return h.response({ status: 'success', data }).code(200);
         } catch (error) {
+            console.error('Error fetching data:', error);
             return h.response({ status: 'fail', message: 'Error fetching data' }).code(500);
         }
     },
 
+    // Update Officer
     updateOfficer: async (request, h) => {
         try {
             const { id } = request.params;
-            const {
-                user_id,
-                puskesmas_id,
-                nama,
-            } = request.payload;
+            const { user_id, puskesmas_id, nama } = request.payload;
 
             const updatedItem = {
                 user_id,
@@ -115,155 +89,129 @@ const healthCenterController = {
                 }
             });
 
-            const { data, error } = await supabase
-            .from('PetugasPuskesmas')
-            .update(updatedItem)
-            .eq('petugas_id', id)
-            .select('*');
+            const [updateResult] = await db.query(
+                `UPDATE PetugasPuskesmas SET ? WHERE petugas_id = ?`,
+                [updatedItem, id]
+            );
 
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
-
-            if (data.length === 0) {
+            if (updateResult.affectedRows === 0) {
                 return h.response({ status: 'fail', message: 'Officer not found' }).code(404);
             }
 
-            const responsePayload = {
-                status: 'success',
-                data: data[0]
-            };
-    
-            return h.response(responsePayload).code(200);
+            const [updatedData] = await db.query(
+                `SELECT * FROM PetugasPuskesmas WHERE petugas_id = ?`,
+                [id]
+            );
+
+            return h.response({ status: 'success', data: updatedData[0] }).code(200);
         } catch (error) {
+            console.error('Error updating data:', error);
             return h.response({ status: 'fail', message: error.message }).code(500);
         }
     },
 
+    // Delete Officer
     deleteOfficer: async (request, h) => {
         try {
             const { id } = request.params;
 
-            const { data, error } = await supabase
-            .from('PetugasPuskesmas')
-            .delete()
-            .eq('petugas_id', id)
-            .select('*');
+            const [deleteResult] = await db.query(
+                `DELETE FROM PetugasPuskesmas WHERE petugas_id = ?`,
+                [id]
+            );
 
-            if (error) {
-                console.error('Error deleting document:', error);
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
-
-            if (data.length === 0) {
+            if (deleteResult.affectedRows === 0) {
                 return h.response({ status: 'fail', message: 'Officer not found' }).code(404);
             }
 
             return h.response({ status: 'success', message: 'Officer deleted successfully' }).code(200);
         } catch (error) {
+            console.error('Error deleting data:', error);
             return h.response({ status: 'fail', message: error.message }).code(500);
         }
     },
 
-    // Puskesmas
+    // Create Puskesmas
     createPuskesmas: async (request, h) => {
         try {
-            const {
-                nama_puskesmas,
-                alamat,
-            } = request.payload;
-    
+            const { nama_puskesmas, alamat } = request.payload;
+
             if (!nama_puskesmas) {
-                const response = h.response({
+                return h.response({
                     status: 'fail',
                     message: 'Failed to add puskesmas data. Please provide the puskesmas data name.',
-                });
-                response.code(400);
-                return response;
+                }).code(400);
             }
-    
+
             const newItem = {
                 nama_puskesmas,
                 alamat,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             };
-    
-            const { data, error } = await supabase
-                .from('Puskesmas')
-                .insert([newItem])
-                .select('*');
-    
-            if (error) {
-                console.error('Error adding data:', error);
-                return h.response({ status: 'fail', message: error.message }).code(500);
+
+            const [result] = await db.query(
+                `INSERT INTO Puskesmas (nama_puskesmas, alamat, created_at, updated_at) 
+                 VALUES (?, ?, ?, ?)`,
+                [nama_puskesmas, alamat, new Date().toISOString(), new Date().toISOString()]
+            );
+
+            if (result.affectedRows === 0) {
+                return h.response({ status: 'fail', message: 'Failed to add puskesmas data' }).code(400);
             }
-    
-            const responsePayload = {
-                status: 'success',
-                data: data[0]
-            };
-    
-            return h.response(responsePayload).code(201);
+
+            const [newData] = await db.query(
+                `SELECT * FROM Puskesmas WHERE puskesmas_id = ?`,
+                [result.insertId]
+            );
+
+            return h.response({ status: 'success', data: newData[0] }).code(201);
         } catch (error) {
+            console.error('Error adding data:', error);
             return h.response({ status: 'fail', message: error.message }).code(500);
         }
     },
-    
+
+    // Get Single Puskesmas
     getPuskesmas: async (request, h) => {
         try {
             const { id } = request.params;
 
-            const { data, error } = await supabase
-                .from('Puskesmas')
-                .select('*')
-                .eq('puskesmas_id', id)
-                .single();
-
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
+            const [data] = await db.query(
+                `SELECT * FROM Puskesmas WHERE puskesmas_id = ?`,
+                [id]
+            );
 
             if (data.length === 0) {
                 return h.response({ status: 'fail', message: 'Puskesmas not found' }).code(404);
             }
-            
-            const responsePayload = {
-                status: 'success',
-                data: data
-            };
 
-            return h.response(responsePayload).code(200);
+            return h.response({ status: 'success', data: data[0] }).code(200);
         } catch (error) {
-            console.error('Error fetching document:', error);
+            console.error('Error fetching data:', error);
             return h.response({ status: 'fail', message: 'Error fetching data' }).code(500);
         }
     },
 
+    // Get All Puskesmas
     getAllPuskesmas: async (request, h) => {
         try {
-            const { data, error } = await supabase
-                .from('Puskesmas')
-                .select('*');
-    
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(400);
-            }
+            const [data] = await db.query(
+                `SELECT * FROM Puskesmas`
+            );
 
-            return h.response({ status: 'success', data: data }).code(200);
+            return h.response({ status: 'success', data }).code(200);
         } catch (error) {
-            console.error('Error fetching documents:', error);
+            console.error('Error fetching data:', error);
             return h.response({ status: 'fail', message: 'Error fetching data' }).code(500);
         }
     },
 
+    // Update Puskesmas
     updatePuskesmas: async (request, h) => {
         try {
             const { id } = request.params;
-            const {
-                nama_puskesmas,
-                alamat,
-            } = request.payload;
+            const { nama_puskesmas, alamat } = request.payload;
 
             const updatedItem = {
                 nama_puskesmas,
@@ -277,51 +225,44 @@ const healthCenterController = {
                 }
             });
 
-            const { data, error } = await supabase
-            .from('Puskesmas')
-            .update(updatedItem)
-            .eq('puskesmas_id', id)
-            .select('*');
+            const [updateResult] = await db.query(
+                `UPDATE Puskesmas SET ? WHERE puskesmas_id = ?`,
+                [updatedItem, id]
+            );
 
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
-
-            if (data.length === 0) {
+            if (updateResult.affectedRows === 0) {
                 return h.response({ status: 'fail', message: 'Puskesmas not found' }).code(404);
             }
 
-            const responsePayload = {
-                status: 'success',
-                data: data[0]
-            };
-    
-            return h.response(responsePayload).code(200);
+            const [updatedData] = await db.query(
+                `SELECT * FROM Puskesmas WHERE puskesmas_id = ?`,
+                [id]
+            );
+
+            return h.response({ status: 'success', data: updatedData[0] }).code(200);
         } catch (error) {
+            console.error('Error updating data:', error);
             return h.response({ status: 'fail', message: error.message }).code(500);
         }
     },
 
+    // Delete Puskesmas
     deletePuskesmas: async (request, h) => {
         try {
             const { id } = request.params;
 
-            const { data, error } = await supabase
-            .from('Puskesmas')
-            .delete()
-            .eq('puskesmas_id', id)
-            .select('*');
+            const [deleteResult] = await db.query(
+                `DELETE FROM Puskesmas WHERE puskesmas_id = ?`,
+                [id]
+            );
 
-            if (error) {
-                return h.response({ status: 'fail', message: error.message }).code(500);
-            }
-
-            if (data.length === 0) {
+            if (deleteResult.affectedRows === 0) {
                 return h.response({ status: 'fail', message: 'Puskesmas not found' }).code(404);
             }
 
             return h.response({ status: 'success', message: 'Puskesmas deleted successfully' }).code(200);
         } catch (error) {
+            console.error('Error deleting data:', error);
             return h.response({ status: 'fail', message: error.message }).code(500);
         }
     },

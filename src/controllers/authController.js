@@ -1,3 +1,4 @@
+const db = require('../config/database');
 const jwt = require('jsonwebtoken');
 const dayjs = require('dayjs');
 const utc = require('dayjs/plugin/utc');
@@ -28,24 +29,27 @@ const authController = {
 
             if (existingUser.length > 0) {
                 user = existingUser[0];
+                console.log("User found:", user);
             } else {
                 // Insert new user
                 const newUser = {
                     email,
                     role: 'user',
-                    created_at: dayjs().tz('Asia/Jakarta').format(),
+                    created_at: dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss'),
+                    updated_at: dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss'),
                 };
 
                 const [insertResult] = await db.query(
-                    `INSERT INTO Users (email, role, created_at) VALUES (?, ?, ?)`,
-                    [newUser.email, newUser.role, newUser.created_at]
+                    `INSERT INTO Users (email, role, created_at, updated_at) VALUES (?, ?, ?, ?)`,
+                    [newUser.email, newUser.role, newUser.created_at, newUser.updated_at]
                 );
 
                 if (insertResult.affectedRows === 0) {
                     return h.response({ success: false, message: 'Failed to create user' }).code(500);
                 }
 
-                user = { ...newUser, id: insertResult.insertId };
+                
+                user = { ...newUser, user_id: insertResult.insertId };
 
                 // Insert into specific table based on role
                 let insertTable;
@@ -57,13 +61,18 @@ const authController = {
                 if (insertTable) {
                     const [insertDataResult] = await db.query(
                         `INSERT INTO ${insertTable} (user_id, nama, created_at, updated_at) VALUES (?, ?, ?, ?)`,
-                        [user.id, 'user', dayjs().tz('Asia/Jakarta').format(), dayjs().tz('Asia/Jakarta').format()]
+                        [user.user_id, 'user', dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss'), dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss')]
                     );
 
                     if (insertDataResult.affectedRows === 0) {
                         return h.response({ success: false, message: `Failed to create ${insertTable}` }).code(500);
                     }
                 }
+            }
+
+            // Pastikan bahwa user.id ada sebelum insert ke Account
+            if (!user.user_id) {
+                return h.response({ success: false, message: 'User ID is missing.' }).code(500);
             }
 
             // Check if the user's role is allowed
@@ -86,12 +95,12 @@ const authController = {
                 { expiresIn: '29d' }
             );
 
-            const expiresAt = dayjs().add(29, 'day').format();
+            const expiresAt = dayjs().add(29, 'day').format('YYYY-MM-DD HH:mm:ss');
             const [upsertResult] = await db.query(
-                `INSERT INTO Account (userId, provider, access_token, expires_at, created_at) 
+                `INSERT INTO Account (user_id, provider, access_token, expires_at, created_at) 
                  VALUES (?, ?, ?, ?, ?) 
                  ON DUPLICATE KEY UPDATE access_token = VALUES(access_token), expires_at = VALUES(expires_at), created_at = VALUES(created_at)`,
-                [user.id, 'google', token, expiresAt, dayjs().tz('Asia/Jakarta').format()]
+                [user.user_id, 'google', token, expiresAt, dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss')]
             );
 
             if (upsertResult.affectedRows === 0) {

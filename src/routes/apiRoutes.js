@@ -7,6 +7,7 @@ const healthCenterController = require('../controllers/healthCenterController');
 const verifyToken = require('../Middleware/middleware');
 
 const motherController = require('../controllers/motherController');
+const adminController = require('../controllers/adminController');
 
 
 const apiRoutes = [
@@ -77,15 +78,25 @@ const apiRoutes = [
       method: 'GET',
       path: '/istri/edukasi',
       options: {
-        pre: [verifyToken], // Middleware untuk verifikasi token
+        pre: [verifyToken],
       },
       handler: motherController.EducationPregnantMother,
+    },
+
+    // Page Consultation Istri
+    {
+      method: 'GET',
+      path: '/istri/konsultasi',
+      options: {
+        pre: [verifyToken],
+      },
+      handler: motherController.ConsultationPregnantMother,
     },
 
     // Page Update profile Istri
     {
       method: 'PUT',
-      path: '/istri/profile/data-diri',
+      path: '/istri/profile',
       options: {
         payload: {
           multipart: true,
@@ -95,7 +106,7 @@ const apiRoutes = [
           payload: Joi.object({
             nama: Joi.string().allow('').label('nama'),
             usia: Joi.number().integer().label('usia'),            
-            no_hp: Joi.number().integer().label('no_hp'),
+            no_hp: Joi.string().allow('').label('no_hp'),
           }),
           failAction: async (request, h, err) => {
             throw err;
@@ -109,7 +120,7 @@ const apiRoutes = [
     // Page Update Data diri Istri
     {
       method: 'PUT',
-      path: '/istri/profile/data-kehamilan',
+      path: '/istri/profile/data-diri',
       options: {
         payload: {
           multipart: true,
@@ -171,7 +182,8 @@ const apiRoutes = [
             jumlah_anak: Joi.number().integer().label('jumlah_anak'),            
             konsumsi_ttd_7hari: Joi.number().integer().label('konsumsi_ttd_7hari'),
             hasil_hb: Joi.number().precision(2).required().label('hasil_hb'),
-            riwayat_anemia: Joi.boolean().label('riwayat_anemia'),
+            riwayat_anemia: Joi.number().integer().label('riwayat_anemia'),
+            resiko: Joi.string().allow('').label('resiko'),
           }),
           failAction: async (request, h, err) => {
             throw err;
@@ -230,7 +242,7 @@ const apiRoutes = [
         pre: [verifyToken],
         validate: {
           payload: Joi.object({
-            minum_vit_c: Joi.string().allow('').label('minum_vit_c'),
+            minum_vit_c: Joi.number().integer().label('minum_vit_c'),
           }),
           failAction: async (request, h, err) => {
             throw err;
@@ -272,9 +284,9 @@ const apiRoutes = [
         pre: [verifyToken],
         validate: {
           payload: Joi.object({
-            waktu_reminder_1: Joi.string().pattern(/^(0[1-9]|1[0-2]):([0-5]\d):([0-5]\d) (AM|PM)$/).label('waktu_reminder_1'),
+            waktu_reminder_1: Joi.string().pattern(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/).label('waktu_reminder_1'),
             is_active_reminder_1: Joi.number().integer().label('is_active_reminder_1'),
-            waktu_reminder_2: Joi.string().pattern(/^(0[1-9]|1[0-2]):([0-5]\d):([0-5]\d) (AM|PM)$/).label('waktu_reminder_2'),
+            waktu_reminder_2: Joi.string().pattern(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/).label('waktu_reminder_2'),
             is_active_reminder_2: Joi.number().integer().label('is_active_reminder_2'),
           }),
           failAction: async (request, h, err) => {
@@ -284,6 +296,208 @@ const apiRoutes = [
       },
       handler: motherController.ReminderTTD,
     },
+
+    // Page Dasboard Suami
+    // {
+    //   method: 'GET',
+    //   path: '/suami/dashboard',
+    //   options: {
+    //     pre: [verifyToken], // Middleware untuk verifikasi token
+    //   },
+    //   handler: husbandController.DasboardHusband,
+    // },
+
+    // Page Dasboard admin
+    {
+      method: 'GET',
+      path: '/admin/dashboard',
+      options: {
+        pre: [verifyToken], // Middleware untuk verifikasi token
+      },
+      handler: adminController.DasboardAdmin,
+    },
+
+    // Page Dasboard Admin Table
+    {
+      method: 'GET',
+      path: '/admin/dashboard/data',
+      options: {
+        pre: [verifyToken],
+      },
+      handler: adminController.TableDashboardAdmin,
+    },
+
+    // Page Data Puskesmas
+    {
+      method: 'GET',
+      path: '/admin/data-puskesmas',
+      options: {
+        pre: [verifyToken],
+      },
+      handler: adminController.GetDataPuskesmas,
+    },
+
+    {
+      method: 'GET',
+      path: '/admin/data-puskesmas/{id}',
+      options: {
+          pre: [verifyToken],
+          validate: {
+            params: Joi.object({
+              id: Joi.number().required(),
+            }),
+          },
+      },
+      handler: adminController.DetailDataPuskesmas,
+    },
+    {
+      method: 'POST',
+      path: '/admin/data-puskesmas',
+      options: {
+          payload: {
+            multipart: true,
+          },
+          pre: [verifyToken],
+          validate: {
+            payload: Joi.object({
+              nama_puskesmas: Joi.string().allow('').label('nama_puskesmas'),
+              alamat: Joi.string().allow('').label('alamat'),
+              kecamatan: Joi.string().allow('').label('kecamatan'),
+              no_hp: Joi.string().allow('').label('no_hp'),
+            }),
+            failAction: async (request, h, err) => {
+              throw err;
+            },
+          },
+      },
+      handler: adminController.CreateDataPuskesmas,
+  },
+  {
+    method: 'PUT',
+    path: '/admin/data-puskesmas/{id}',
+    options: {
+        payload: {
+          multipart: true,
+        },
+        pre: [verifyToken],
+        validate: {
+          payload: Joi.object({
+            nama_puskesmas: Joi.string().allow('').label('nama_puskesmas'),
+            alamat: Joi.string().allow('').label('alamat'),
+            kecamatan: Joi.string().allow('').label('kecamatan'),
+            no_hp: Joi.string().allow('').label('no_hp'),
+          }),
+          failAction: async (request, h, err) => {
+            throw err;
+          },
+        },
+    },
+    handler: adminController.UpdateDataPuskesmas,
+  },
+  {
+    method: 'DELETE',
+    path: '/admin/data-puskesmas/{id}',
+    options: {
+        pre: [verifyToken],
+        validate: {
+          params: Joi.object({
+            id: Joi.number().required(),
+          }),
+        },
+    },
+    handler: adminController.DeleteDataPuskesmas,
+  },
+
+  // Page Data Petugas
+  {
+    method: 'GET',
+    path: '/admin/data-petugas',
+    options: {
+      pre: [verifyToken],
+    },
+    handler: adminController.GetDataPetugas,
+  },
+  {
+      method: 'GET',
+      path: '/admin/data-petugas/{petugas_id}',
+      options: {
+          pre: [verifyToken],
+          validate: {
+            params: Joi.object({
+              petugas_id: Joi.number().required(),
+            }),
+          },
+      },
+      handler: adminController.DetailDataPetugas,
+  },
+  {
+      method: 'POST',
+      path: '/admin/data-petugas',
+      options: {
+          payload: {
+            multipart: true,
+          },
+          pre: [verifyToken],
+          validate: {
+            payload: Joi.object({
+                user_id: Joi.number().integer().label('user_id'),
+                puskesmas_id: Joi.number().integer().label('puskesmas_id'),
+                nama: Joi.string().allow('').label('nama'),
+                no_hp: Joi.string().allow('').label('no_hp'),
+                jabatan: Joi.string().allow('').label('jabatan'),
+                image: Joi.string().allow('').label('image'),
+            }),
+            failAction: async (request, h, err) => {
+              throw err;
+            },
+          },
+      },
+      handler: adminController.CreateDataPetugas,
+  },
+  {
+    method: 'PUT',
+    path: '/admin/data-petugas/{petugas_id}',
+    options: {
+        payload: {
+          multipart: true,
+        },
+        pre: [verifyToken],
+        validate: {
+          payload: Joi.object({
+            user_id: Joi.number().integer().label('user_id'),
+            puskesmas_id: Joi.number().integer().label('puskesmas_id'),
+            nama: Joi.string().allow('').label('nama'),
+            no_hp: Joi.string().allow('').label('no_hp'),
+            jabatan: Joi.string().allow('').label('jabatan'),
+            image: Joi.string().allow('').label('image'),
+          }),
+          failAction: async (request, h, err) => {
+            throw err;
+          },
+        },
+    },
+    handler: adminController.UpdateDataPetugas,
+  },
+  {
+    method: 'DELETE',
+    path: '/admin/data-petugas/{petugas_id}',
+    options: {
+        pre: [verifyToken],
+        validate: {
+          params: Joi.object({
+            petugas_id: Joi.number().required(),
+          }),
+        },
+    },
+    handler: adminController.DeleteDataPetugas,
+  },
+
+
+
+
+
+
+  
 
     // Data Pregnant Mother
     {
@@ -320,11 +534,13 @@ const apiRoutes = [
                 user_id: Joi.number().integer().label('user_id'),
                 nama: Joi.string().allow('').label('nama'),
                 usia: Joi.number().integer().label('usia'),
+                no_hp: Joi.string().allow('').label('no_hp'),
                 hari_pertama_haid: Joi.date().iso().label('hari_pertama_haid'),
                 tempat_tinggal_ktp: Joi.string().allow('').label('tempat_tinggal_ktp'),
                 tempat_tinggal_kelurahan: Joi.string().allow('').label('tempat_tinggal_kelurahan'),
                 pendidikan_terakhir: Joi.string().allow('').label('pendidikan_terakhir'),
                 pekerjaan: Joi.string().allow('').label('pekerjaan'),
+                image: Joi.string().allow('').label('image'),
                 nama_suami: Joi.string().allow('').label('nama_suami'),
                 no_hp_suami: Joi.string().allow('').label('no_hp_suami'),
                 email_suami: Joi.string().allow('').label('email_suami'),
@@ -349,11 +565,13 @@ const apiRoutes = [
                 user_id: Joi.number().integer().label('user_id'),
                 nama: Joi.string().allow('').label('nama'),
                 usia: Joi.number().integer().label('usia'),
+                no_hp: Joi.string().allow('').label('no_hp'),
                 hari_pertama_haid: Joi.date().iso().label('hari_pertama_haid'),
                 tempat_tinggal_ktp: Joi.string().allow('').label('tempat_tinggal_ktp'),
                 tempat_tinggal_kelurahan: Joi.string().allow('').label('tempat_tinggal_kelurahan'),
                 pendidikan_terakhir: Joi.string().allow('').label('pendidikan_terakhir'),
                 pekerjaan: Joi.string().allow('').label('pekerjaan'),
+                image: Joi.string().allow('').label('image'),
                 nama_suami: Joi.string().allow('').label('nama_suami'),
                 no_hp_suami: Joi.string().allow('').label('no_hp_suami'),
                 email_suami: Joi.string().allow('').label('email_suami'),
@@ -686,8 +904,9 @@ const apiRoutes = [
               payload: Joi.object({
                 ibu_hamil_id: Joi.number().integer().label('ibu_hamil_id'),
                 waktu_reminder_1: Joi.string().regex(/^\d{2}:\d{2}:\d{2}$/).required().label('waktu_reminder_1'),
+                is_active_reminder_1: Joi.number().integer().label('is_active_reminder_1'),
                 waktu_reminder_2: Joi.string().regex(/^\d{2}:\d{2}:\d{2}$/).required().label('waktu_reminder_2'),
-                is_active: Joi.boolean().label('is_active'),
+                is_active_reminder_2: Joi.number().integer().label('is_active_reminder_2'),
               }),
               failAction: async (request, h, err) => {
                 throw err;
@@ -708,8 +927,9 @@ const apiRoutes = [
             payload: Joi.object({
               ibu_hamil_id: Joi.number().integer().label('ibu_hamil_id'),
               waktu_reminder_1: Joi.string().regex(/^\d{2}:\d{2}:\d{2}$/).required().label('waktu_reminder_1'),
+              is_active_reminder_1: Joi.number().integer().label('is_active_reminder_1'),
               waktu_reminder_2: Joi.string().regex(/^\d{2}:\d{2}:\d{2}$/).required().label('waktu_reminder_2'),
-              is_active: Joi.boolean().label('is_active'),
+              is_active_reminder_2: Joi.number().integer().label('is_active_reminder_2'),
             }),
             failAction: async (request, h, err) => {
               throw err;
@@ -768,7 +988,7 @@ const apiRoutes = [
                 tanggal_waktu: Joi.string()
                 .regex(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)
                   .required().label('tanggal_waktu'),
-                minum_vit_c: Joi.boolean().label('minum_vit_c'),
+                minum_vit_c: Joi.number().integer().label('minum_vit_c'),
               }),
               failAction: async (request, h, err) => {
                 throw err;
@@ -791,7 +1011,7 @@ const apiRoutes = [
               tanggal_waktu: Joi.string()
                 .regex(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)
                 .required().label('tanggal_waktu'),
-              minum_vit_c: Joi.boolean().label('minum_vit_c'),
+              minum_vit_c: Joi.number().integer().label('minum_vit_c'),
             }),
             failAction: async (request, h, err) => {
               throw err;
@@ -1010,6 +1230,9 @@ const apiRoutes = [
                   user_id: Joi.number().integer().label('user_id'),
                   puskesmas_id: Joi.number().integer().label('puskesmas_id'),
                   nama: Joi.string().allow('').label('nama'),
+                  no_hp: Joi.string().allow('').label('no_hp'),
+                  jabatan: Joi.string().allow('').label('jabatan'),
+                  image: Joi.string().allow('').label('image'),
               }),
               failAction: async (request, h, err) => {
                 throw err;
@@ -1020,7 +1243,7 @@ const apiRoutes = [
     },
     {
       method: 'PUT',
-      path: '/puskesmas-officer/{id}',
+      path: '/puskesmas-officer/{petugas_id}',
       options: {
           payload: {
             multipart: true,
@@ -1031,6 +1254,9 @@ const apiRoutes = [
               user_id: Joi.number().integer().label('user_id'),
               puskesmas_id: Joi.number().integer().label('puskesmas_id'),
               nama: Joi.string().allow('').label('nama'),
+              no_hp: Joi.string().allow('').label('no_hp'),
+              jabatan: Joi.string().allow('').label('jabatan'),
+              image: Joi.string().allow('').label('image'),
             }),
             failAction: async (request, h, err) => {
               throw err;
@@ -1041,12 +1267,12 @@ const apiRoutes = [
     },
     {
       method: 'DELETE',
-      path: '/puskesmas-officer/{id}',
+      path: '/puskesmas-officer/{petugas_id}',
       options: {
           pre: [verifyToken],
           validate: {
             params: Joi.object({
-              id: Joi.number().required(),
+              petugas_id: Joi.number().required(),
             }),
           },
       },
@@ -1086,7 +1312,9 @@ const apiRoutes = [
             validate: {
               payload: Joi.object({
                 nama_puskesmas: Joi.string().allow('').label('nama_puskesmas'),
-                alamat: Joi.string().allow('').label('alamat')
+                alamat: Joi.string().allow('').label('alamat'),
+                kecamatan: Joi.string().allow('').label('kecamatan'),
+                no_hp: Joi.string().allow('').label('no_hp')
               }),
               failAction: async (request, h, err) => {
                 throw err;
@@ -1106,7 +1334,9 @@ const apiRoutes = [
           validate: {
             payload: Joi.object({
               nama_puskesmas: Joi.string().allow('').label('nama_puskesmas'),
-              alamat: Joi.string().allow('').label('alamat')
+              alamat: Joi.string().allow('').label('alamat'),
+              kecamatan: Joi.string().allow('').label('kecamatan'),
+              no_hp: Joi.string().allow('').label('no_hp')
             }),
             failAction: async (request, h, err) => {
               throw err;

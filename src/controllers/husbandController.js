@@ -1,10 +1,16 @@
-const db = require('../config/database'); // assuming this is your MySQL connection
+const db = require('../config/database');
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const husbandController = {
     // Create Husband
     createHusband: async (request, h) => {
         try {
-            const { user_id, email, nama } = request.payload;
+            const { user_id, nama, no_hp, image } = request.payload;
 
             if (!user_id) {
                 return h.response({
@@ -12,15 +18,17 @@ const husbandController = {
                     message: 'Failed to add husband data. Please provide the husband data id.',
                 }).code(400);
             }
+            created_at = dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss');
+            updated_at = dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss');
 
             const [result] = await db.query(
-                `INSERT INTO Suami (user_id, email, created_at, updated_at, nama) 
-                 VALUES (?, ?, ?, ?, ?)`,
-                [user_id, email, new Date().toISOString(), new Date().toISOString(), nama]
+                `INSERT INTO Suami (user_id, nama, no_hp, image, created_at, updated_at) 
+                 VALUES (?, ?, ?, ?, ?, ?)`,
+                [user_id, nama, no_hp, image, created_at, updated_at]
             );
 
             if (result.affectedRows === 0) {
-                return h.response({ status: 'fail', message: 'Failed to add husband data' }).code(400);
+                return h.response({ success: false, message: 'Failed to add husband data' }).code(400);
             }
 
             const [newData] = await db.query(
@@ -28,10 +36,10 @@ const husbandController = {
                 [result.insertId]
             );
 
-            return h.response({ status: 'success', data: newData[0] }).code(201);
+            return h.response({ success: true, data: newData[0], message: 'Insert data succesfully.' }).code(201);
         } catch (error) {
             console.error('Error during request handling:', error);
-            return h.response({ status: 'fail', message: error.message }).code(500);
+            return h.response({ success: false, message: error.message }).code(500);
         }
     },
 
@@ -46,13 +54,13 @@ const husbandController = {
             );
 
             if (data.length === 0) {
-                return h.response({ status: 'fail', message: 'Husband not found' }).code(404);
+                return h.response({ success: false, message: 'Husband not found' }).code(404);
             }
 
-            return h.response({ status: 'success', data: data[0] }).code(200);
+            return h.response({ success: true, data: data[0], message: 'Get data by id successfully.' }).code(200);
         } catch (error) {
             console.error('Error fetching document:', error);
-            return h.response({ status: 'fail', message: 'Error fetching document' }).code(500);
+            return h.response({ success: false, message: 'Error fetching document' }).code(500);
         }
     },
 
@@ -63,10 +71,10 @@ const husbandController = {
                 `SELECT * FROM Suami`
             );
 
-            return h.response({ status: 'success', data }).code(200);
+            return h.response({ success: true, data: data, message: 'Get data successfully.' }).code(200);
         } catch (error) {
             console.error('Error fetching documents:', error);
-            return h.response({ status: 'fail', message: 'Error fetching documents' }).code(500);
+            return h.response({ success: false, message: 'Error fetching documents' }).code(500);
         }
     },
 
@@ -80,7 +88,7 @@ const husbandController = {
                 user_id,
                 email,
                 nama,
-                updated_at: new Date().toISOString()
+                updated_at: dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss'),
             };
 
             Object.keys(updatedItem).forEach(key => {
@@ -95,7 +103,7 @@ const husbandController = {
             );
 
             if (updateResult.affectedRows === 0) {
-                return h.response({ status: 'fail', message: 'Husband not found' }).code(404);
+                return h.response({ success: false, message: 'Husband not found' }).code(404);
             }
 
             const [updatedData] = await db.query(
@@ -103,10 +111,10 @@ const husbandController = {
                 [id]
             );
 
-            return h.response({ status: 'success', data: updatedData[0] }).code(200);
+            return h.response({ success: true, data: updatedData[0], message: 'Updated data succesfully.' }).code(200);
         } catch (error) {
             console.error('Error updating document:', error);
-            return h.response({ status: 'fail', message: 'Error updating document' }).code(500);
+            return h.response({ success: false, message: 'Error updating document' }).code(500);
         }
     },
 
@@ -121,13 +129,13 @@ const husbandController = {
             );
 
             if (deleteResult.affectedRows === 0) {
-                return h.response({ status: 'fail', message: 'Husband not found' }).code(404);
+                return h.response({ success: false, message: 'Husband not found' }).code(404);
             }
 
-            return h.response({ status: 'success', message: 'Husband deleted successfully' }).code(200);
+            return h.response({ success: true, message: 'Husband deleted successfully' }).code(200);
         } catch (error) {
             console.error('Error deleting document:', error);
-            return h.response({ status: 'fail', message: 'Error deleting document' }).code(500);
+            return h.response({ success: false, message: 'Error deleting document' }).code(500);
         }
     },
 };

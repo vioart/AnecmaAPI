@@ -1,4 +1,11 @@
-const db = require('../config/database'); // Assuming this is your MySQL connection
+const db = require('../config/database');
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+const { GoTrueClient } = require('@supabase/supabase-js');
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const dataController = {
     createPregnantMother: async (request, h) => {
@@ -7,11 +14,13 @@ const dataController = {
                 user_id,
                 nama,
                 usia,
+                no_hp,
                 hari_pertama_haid,
                 tempat_tinggal_ktp,
                 tempat_tinggal_kelurahan,
                 pendidikan_terakhir,
                 pekerjaan,
+                image,
                 nama_suami,
                 no_hp_suami,
                 email_suami,
@@ -19,7 +28,7 @@ const dataController = {
 
             if (!nama) {
                 return h.response({
-                    status: 'fail',
+                    success: false,
                     message: 'Failed to add pregnant mother data. Please provide the pregnant mother name.',
                 }).code(400);
             }
@@ -28,26 +37,28 @@ const dataController = {
                 user_id,
                 nama,
                 usia,
+                no_hp,
                 hari_pertama_haid,
                 tempat_tinggal_ktp,
                 tempat_tinggal_kelurahan,
                 pendidikan_terakhir,
                 pekerjaan,
+                image,
                 nama_suami,
                 no_hp_suami,
                 email_suami,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
+                created_at: dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss'),
+                updated_at: dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss')
             };
 
             const [result] = await db.query(
-                `INSERT INTO IbuHamil (user_id, nama, usia, hari_pertama_haid, tempat_tinggal_ktp, tempat_tinggal_kelurahan, pendidikan_terakhir, pekerjaan, nama_suami, no_hp_suami, email_suami, created_at, updated_at) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [newItem.user_id, newItem.nama, newItem.usia, newItem.hari_pertama_haid, newItem.tempat_tinggal_ktp, newItem.tempat_tinggal_kelurahan, newItem.pendidikan_terakhir, newItem.pekerjaan, newItem.nama_suami, newItem.no_hp_suami, newItem.email_suami, newItem.created_at, newItem.updated_at]
+                `INSERT INTO IbuHamil (user_id, nama, usia, no_hp, hari_pertama_haid, tempat_tinggal_ktp, tempat_tinggal_kelurahan, pendidikan_terakhir, pekerjaan, image, nama_suami, no_hp_suami, email_suami, created_at, updated_at) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [newItem.user_id, newItem.nama, newItem.usia, newItem.no_hp, newItem.hari_pertama_haid, newItem.tempat_tinggal_ktp, newItem.tempat_tinggal_kelurahan, newItem.pendidikan_terakhir, newItem.pekerjaan, newItem.image, newItem.nama_suami, newItem.no_hp_suami, newItem.email_suami, newItem.created_at, newItem.updated_at]
             );
 
             if (result.affectedRows === 0) {
-                return h.response({ status: 'fail', message: 'Failed to add pregnant mother data' }).code(400);
+                return h.response({ success: false, message: 'Failed to add pregnant mother data' }).code(400);
             }
 
             const [newData] = await db.query(
@@ -55,10 +66,10 @@ const dataController = {
                 [result.insertId]
             );
 
-            return h.response({ status: 'success', data: newData[0] }).code(201);
+            return h.response({ success: true, data: newData[0], message: 'Insert data successfully.' }).code(201);
         } catch (error) {
             console.error('Error adding data:', error);
-            return h.response({ status: 'fail', message: error.message }).code(500);
+            return h.response({ success: false, message: error.message }).code(500);
         }
     },
 
@@ -72,13 +83,13 @@ const dataController = {
             );
 
             if (data.length === 0) {
-                return h.response({ status: 'fail', message: 'Mother pregnant not found' }).code(404);
+                return h.response({ success: false, message: 'Mother pregnant not found' }).code(404);
             }
 
-            return h.response({ status: 'success', data: data[0] }).code(200);
+            return h.response({ success: true, data: data[0], message: 'Get data by id successfully.' }).code(200);
         } catch (error) {
             console.error('Error fetching data:', error);
-            return h.response({ status: 'fail', message: 'Error fetching data' }).code(500);
+            return h.response({ success: false, message: 'Error fetching data' }).code(500);
         }
     },
 
@@ -88,10 +99,10 @@ const dataController = {
                 `SELECT * FROM IbuHamil`
             );
 
-            return h.response({ status: 'success', data }).code(200);
+            return h.response({ success: true, data: data, message: 'Get data successfully.' }).code(200);
         } catch (error) {
             console.error('Error fetching data:', error);
-            return h.response({ status: 'fail', message: 'Error fetching data' }).code(500);
+            return h.response({ success: false, message: 'Error fetching data' }).code(500);
         }
     },
 
@@ -124,7 +135,7 @@ const dataController = {
                 nama_suami,
                 no_hp_suami,
                 email_suami,
-                updated_at: new Date().toISOString()
+                updated_at: dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss')
             };
 
             // Remove undefined values
@@ -148,7 +159,7 @@ const dataController = {
                 [id]
             );
 
-            return h.response({ status: 'success', data: updatedData[0] }).code(200);
+            return h.response({ status: 'success', data: updatedData[0], message: 'Update data successfully.' }).code(200);
         } catch (error) {
             console.error('Error updating data:', error);
             return h.response({ status: 'fail', message: error.message }).code(500);
@@ -190,7 +201,7 @@ const dataController = {
 
             if (!ibu_hamil_id) {
                 return h.response({
-                    status: 'fail',
+                    success: false,
                     message: 'Failed to add Risk Anemia data. Please provide the risk anemia data id.',
                 }).code(400);
             }
@@ -203,7 +214,7 @@ const dataController = {
                 konsumsi_ttd_7hari,
                 hasil_hb,
                 resiko,
-                created_at: new Date().toISOString(),
+                created_at: dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss'),
             };
 
             const [result] = await db.query(
@@ -213,7 +224,7 @@ const dataController = {
             );
 
             if (result.affectedRows === 0) {
-                return h.response({ status: 'fail', message: 'Failed to add Risk Anemia data' }).code(400);
+                return h.response({ success: false, message: 'Failed to add Risk Anemia data' }).code(400);
             }
 
             const [newData] = await db.query(
@@ -221,10 +232,10 @@ const dataController = {
                 [result.insertId]
             );
 
-            return h.response({ status: 'success', data: newData[0] }).code(201);
+            return h.response({ success: true, data: newData[0] }).code(201);
         } catch (error) {
             console.error('Error adding data:', error);
-            return h.response({ status: 'fail', message: error.message }).code(500);
+            return h.response({ success: false, message: error.message }).code(500);
         }
     },
 
@@ -238,13 +249,13 @@ const dataController = {
             );
 
             if (data.length === 0) {
-                return h.response({ status: 'fail', message: 'Risk of Anemia not found' }).code(404);
+                return h.response({ success: false, message: 'Risk of Anemia not found' }).code(404);
             }
 
-            return h.response({ status: 'success', data: data[0] }).code(200);
+            return h.response({ success: true, data: data[0] }).code(200);
         } catch (error) {
             console.error('Error fetching data:', error);
-            return h.response({ status: 'fail', message: 'Error fetching data' }).code(500);
+            return h.response({ success: false, message: 'Error fetching data' }).code(500);
         }
     },
 
@@ -254,10 +265,10 @@ const dataController = {
                 `SELECT * FROM ResikoAnemia`
             );
 
-            return h.response({ status: 'success', data }).code(200);
+            return h.response({ success: true, data }).code(200);
         } catch (error) {
             console.error('Error fetching data:', error);
-            return h.response({ status: 'fail', message: 'Error fetching data' }).code(500);
+            return h.response({ success: false, message: 'Error fetching data' }).code(500);
         }
     },
 
@@ -297,7 +308,7 @@ const dataController = {
             );
 
             if (updateResult.affectedRows === 0) {
-                return h.response({ status: 'fail', message: 'Risk of Anemia data not found' }).code(404);
+                return h.response({ success: false, message: 'Risk of Anemia data not found' }).code(404);
             }
 
             const [updatedData] = await db.query(
@@ -305,10 +316,10 @@ const dataController = {
                 [id]
             );
 
-            return h.response({ status: 'success', data: updatedData[0] }).code(200);
+            return h.response({ success: true, data: updatedData[0], message: 'Updated data successfully.' }).code(200);
         } catch (error) {
             console.error('Error updating data:', error);
-            return h.response({ status: 'fail', message: error.message }).code(500);
+            return h.response({ success: false, message: error.message }).code(500);
         }
     },
 
@@ -322,13 +333,13 @@ const dataController = {
             );
 
             if (deleteResult.affectedRows === 0) {
-                return h.response({ status: 'fail', message: 'Risk of Anemia data not found' }).code(404);
+                return h.response({ success: false, message: 'Risk of Anemia data not found' }).code(404);
             }
 
-            return h.response({ status: 'success', message: 'Risk of Anemia data deleted successfully' }).code(200);
+            return h.response({ success: true, message: 'Risk of Anemia data deleted successfully' }).code(200);
         } catch (error) {
             console.error('Error deleting data:', error);
-            return h.response({ status: 'fail', message: error.message }).code(500);
+            return h.response({ success: false, message: error.message }).code(500);
         }
     },
     
@@ -358,7 +369,7 @@ const dataController = {
 
             if (!ibu_hamil_id) {
                 return h.response({
-                    status: 'fail',
+                    success: false,
                     message: 'Failed to add eating journal data. Please provide the eating journal id.',
                 }).code(400);
             }
@@ -382,17 +393,17 @@ const dataController = {
                 makan_malam_sayur,
                 makan_malam_buah,
                 total_kalori,
-                created_at: new Date().toISOString(),
+                created_at: dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss'),
             };
 
             const [result] = await db.query(
                 `INSERT INTO JurnalMakan (ibu_hamil_id, tanggal, sarapan_karbohidrat, sarapan_lauk_hewani, sarapan_lauk_nabati, sarapan_sayur, sarapan_buah, makan_siang_karbohidrat, makan_siang_lauk_hewani, makan_siang_lauk_nabati, makan_siang_sayur, makan_siang_buah, makan_malam_karbohidrat, makan_malam_lauk_hewani, makan_malam_lauk_nabati, makan_malam_sayur, makan_malam_buah, total_kalori, created_at) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [newItem.ibu_hamil_id, newItem.tanggal, newItem.sarapan_karbohidrat, newItem.sarapan_lauk_hewani, newItem.sarapan_lauk_nabati, newItem.sarapan_sayur, newItem.sarapan_buah, newItem.makan_siang_karbohidrat, newItem.makan_siang_lauk_hewani, newItem.makan_siang_lauk_nabati, newItem.makan_siang_sayur, newItem.makan_siang_buah, newItem.makan_malam_karbohidrat, newItem.makan_malam_lauk_hewani, newItem.makan_malam_lauk_nabati, newItem.makan_malam_sayur, newItem.makan_malam_buah, newItem.total_kalori, newItem.created_at]
             );
 
             if (result.affectedRows === 0) {
-                return h.response({ status: 'fail', message: 'Failed to add Eating Journal data' }).code(400);
+                return h.response({ success: false, message: 'Failed to add Eating Journal data' }).code(400);
             }
 
             const [newData] = await db.query(
@@ -400,10 +411,10 @@ const dataController = {
                 [result.insertId]
             );
 
-            return h.response({ status: 'success', data: newData[0] }).code(201);
+            return h.response({ success: true, data: newData[0], message: 'Insert data successfully.' }).code(201);
         } catch (error) {
             console.error('Error adding data:', error);
-            return h.response({ status: 'fail', message: error.message }).code(500);
+            return h.response({ success: false, message: error.message }).code(500);
         }
     },
 
@@ -417,13 +428,13 @@ const dataController = {
             );
 
             if (data.length === 0) {
-                return h.response({ status: 'fail', message: 'Eating Journal data not found' }).code(404);
+                return h.response({ success: false, message: 'Eating Journal data not found' }).code(404);
             }
 
-            return h.response({ status: 'success', data: data[0] }).code(200);
+            return h.response({ success: true, data: data[0], message: 'Get data by id successfully.' }).code(200);
         } catch (error) {
             console.error('Error fetching data:', error);
-            return h.response({ status: 'fail', message: 'Error fetching data' }).code(500);
+            return h.response({ success: false, message: 'Error fetching data' }).code(500);
         }
     },
 
@@ -498,7 +509,7 @@ const dataController = {
             );
 
             if (updateResult.affectedRows === 0) {
-                return h.response({ status: 'fail', message: 'Eating Journal data not found' }).code(404);
+                return h.response({ status: false, message: 'Eating Journal data not found' }).code(404);
             }
 
             const [updatedData] = await db.query(
@@ -506,10 +517,10 @@ const dataController = {
                 [id]
             );
 
-            return h.response({ status: 'success', data: updatedData[0] }).code(200);
+            return h.response({ success: true, data: updatedData[0], message: 'Updated data successfully.' }).code(200);
         } catch (error) {
             console.error('Error updating data:', error);
-            return h.response({ status: 'fail', message: error.message }).code(500);
+            return h.response({ success: false, message: error.message }).code(500);
         }
     },
 
@@ -523,13 +534,13 @@ const dataController = {
             );
 
             if (deleteResult.affectedRows === 0) {
-                return h.response({ status: 'fail', message: 'Eating Journal data not found' }).code(404);
+                return h.response({ success: false, message: 'Eating Journal data not found' }).code(404);
             }
 
-            return h.response({ status: 'success', message: 'Eating Journal data deleted successfully' }).code(200);
+            return h.response({ success: true, message: 'Eating Journal data deleted successfully' }).code(200);
         } catch (error) {
             console.error('Error deleting data:', error);
-            return h.response({ status: 'fail', message: error.message }).code(500);
+            return h.response({ success: false, message: error.message }).code(500);
         }
     },
 
@@ -539,13 +550,14 @@ const dataController = {
             const {
                 ibu_hamil_id,
                 waktu_reminder_1,
+                is_active_reminder_1,
                 waktu_reminder_2,
-                is_active,
+                is_active_reminder_2,
             } = request.payload;
     
             if (!ibu_hamil_id) {
                 const response = h.response({
-                    status: 'fail',
+                    status: false,
                     message: 'Failed to add reminder ttd data. Please provide the ibu_hamil_id.',
                 });
                 response.code(400);
@@ -555,10 +567,11 @@ const dataController = {
             const newItem = {
                 ibu_hamil_id,
                 waktu_reminder_1,
+                is_active_reminder_1,
                 waktu_reminder_2,
-                is_active,
-                created_at: new Date(),
-                updated_at: new Date()
+                is_active_reminder_2,
+                created_at: dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss'),
+                updated_at: dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss'),
             };
     
             const [results] = await db.query(
@@ -567,17 +580,18 @@ const dataController = {
             );
     
             const responsePayload = {
-                status: 'success',
+                success: true,
                 data: {
                     id: results.insertId,
                     ...newItem
-                }
+                },
+                message: 'Insert data successfully.'
             };
     
             return h.response(responsePayload).code(201);
         } catch (error) {
             console.error('Error during request handling:', error);
-            return h.response({ status: 'fail', message: error.message }).code(500);
+            return h.response({ success: false, message: error.message }).code(500);
         }
     },    
     
@@ -591,18 +605,19 @@ const dataController = {
             );
     
             if (results.length === 0) {
-                return h.response({ status: 'fail', message: 'Reminder TTD data not found' }).code(404);
+                return h.response({ success: false, message: 'Reminder TTD data not found' }).code(404);
             }
     
             const responsePayload = {
-                status: 'success',
-                data: results[0]
+                success: true,
+                data: results[0],
+                message: 'Get data by id successfully.'
             };
     
             return h.response(responsePayload).code(200);
         } catch (error) {
             console.error('Error fetching document:', error);
-            return h.response({ status: 'fail', message: 'Error fetching document' }).code(500);
+            return h.response({ success: false, message: 'Error fetching document' }).code(500);
         }
     },    
 
@@ -612,10 +627,10 @@ const dataController = {
                 'SELECT * FROM ReminderTTD'
             );
     
-            return h.response({ status: 'success', data: results }).code(200);
+            return h.response({ success: true, data: results }).code(200);
         } catch (error) {
             console.error('Error fetching documents:', error);
-            return h.response({ status: 'fail', message: 'Error fetching documents' }).code(500);
+            return h.response({ success: false, message: 'Error fetching documents' }).code(500);
         }
     },
     
@@ -625,15 +640,17 @@ const dataController = {
             const {
                 ibu_hamil_id,
                 waktu_reminder_1,
+                is_active_reminder_1,
                 waktu_reminder_2,
-                is_active,
+                is_active_reminder_2,
             } = request.payload;
     
             const updatedItem = {
                 ibu_hamil_id,
                 waktu_reminder_1,
+                is_active_reminder_1,
                 waktu_reminder_2,
-                is_active,
+                is_active_reminder_2,
                 updated_at: new Date()
             };
     
@@ -643,7 +660,7 @@ const dataController = {
             );
     
             if (results.affectedRows === 0) {
-                return h.response({ status: 'fail', message: 'Reminder TTD not found' }).code(404);
+                return h.response({ success: false, message: 'Reminder TTD not found' }).code(404);
             }
     
             const [updatedResults] = await db.query(
@@ -652,14 +669,15 @@ const dataController = {
             );
     
             const responsePayload = {
-                status: 'success',
-                data: updatedResults[0]
+                success: true,
+                data: updatedResults[0],
+                message: 'Updated data successfully.'
             };
     
             return h.response(responsePayload).code(200);
         } catch (error) {
             console.error('Error during request handling:', error);
-            return h.response({ status: 'fail', message: error.message }).code(500);
+            return h.response({ success: false, message: error.message }).code(500);
         }
     },
 
@@ -673,13 +691,13 @@ const dataController = {
             );
     
             if (results.affectedRows === 0) {
-                return h.response({ status: 'fail', message: 'Reminder TTD data not found' }).code(404);
+                return h.response({ success: false, message: 'Reminder TTD data not found' }).code(404);
             }
     
-            return h.response({ status: 'success', message: 'Reminder TTD data deleted successfully' }).code(200);
+            return h.response({ success: true, message: 'Reminder TTD data deleted successfully' }).code(200);
         } catch (error) {
             console.error('Error deleting document:', error);
-            return h.response({ status: 'fail', message: 'Error deleting document' }).code(500);
+            return h.response({ success: false, message: 'Error deleting document' }).code(500);
         }
     },
     
@@ -694,7 +712,7 @@ const dataController = {
     
             if (!ibu_hamil_id) {
                 const response = h.response({
-                    status: 'fail',
+                    success: false,
                     message: 'Failed to add Check HB data. Please provide the ibu_hamil_id.',
                 });
                 response.code(400);
@@ -705,7 +723,7 @@ const dataController = {
                 ibu_hamil_id,
                 tanggal,
                 nilai_hb,
-                created_at: new Date()
+                created_at: dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss')
             };
     
             const [results] = await db.query(
@@ -714,17 +732,18 @@ const dataController = {
             );
     
             const responsePayload = {
-                status: 'success',
+                success: true,
                 data: {
                     cek_hb_id: results.insertId,
                     ...newItem
-                }
+                },
+                message: 'Insert data successfully.'
             };
     
             return h.response(responsePayload).code(201);
         } catch (error) {
             console.error('Error during request handling:', error);
-            return h.response({ status: 'fail', message: error.message }).code(500);
+            return h.response({ success: false, message: error.message }).code(500);
         }
     },
     
@@ -738,18 +757,19 @@ const dataController = {
             );
     
             if (results.length === 0) {
-                return h.response({ status: 'fail', message: 'Check HB data not found' }).code(404);
+                return h.response({ success: false, message: 'Check HB data not found' }).code(404);
             }
     
             const responsePayload = {
-                status: 'success',
-                data: results[0]
+                success: true,
+                data: results[0],
+                message: 'Get data by id successfully.'
             };
     
             return h.response(responsePayload).code(200);
         } catch (error) {
             console.error('Error fetching document:', error);
-            return h.response({ status: 'fail', message: 'Error fetching document' }).code(500);
+            return h.response({ success: false, message: 'Error fetching document' }).code(500);
         }
     },
     
@@ -759,10 +779,10 @@ const dataController = {
                 'SELECT * FROM CekHB'
             );
     
-            return h.response({ status: 'success', data: results }).code(200);
+            return h.response({ success: true, data: results }).code(200);
         } catch (error) {
             console.error('Error fetching documents:', error);
-            return h.response({ status: 'fail', message: 'Error fetching documents' }).code(500);
+            return h.response({ success: false, message: 'Error fetching documents' }).code(500);
         }
     },
 
@@ -779,7 +799,6 @@ const dataController = {
                 ibu_hamil_id,
                 tanggal,
                 nilai_hb,
-                updated_at: new Date()
             };
     
             Object.keys(updatedItem).forEach(key => {
@@ -794,7 +813,7 @@ const dataController = {
             );
     
             if (results.affectedRows === 0) {
-                return h.response({ status: 'fail', message: 'Check HB data not found' }).code(404);
+                return h.response({ success: false, message: 'Check HB data not found' }).code(404);
             }
     
             const [updatedResults] = await db.query(
@@ -803,14 +822,15 @@ const dataController = {
             );
     
             const responsePayload = {
-                status: 'success',
-                data: updatedResults[0]
+                success: true,
+                data: updatedResults[0],
+                message: 'Updated data successfully.'
             };
     
             return h.response(responsePayload).code(200);
         } catch (error) {
             console.error('Error during request handling:', error);
-            return h.response({ status: 'fail', message: error.message }).code(500);
+            return h.response({ success: false, message: error.message }).code(500);
         }
     },
     
@@ -824,13 +844,13 @@ const dataController = {
             );
     
             if (results.affectedRows === 0) {
-                return h.response({ status: 'fail', message: 'Check HB data not found' }).code(404);
+                return h.response({ success: false, message: 'Check HB data not found' }).code(404);
             }
     
-            return h.response({ status: 'success', message: 'Check HB deleted successfully' }).code(200);
+            return h.response({ success: true, message: 'Check HB deleted successfully' }).code(200);
         } catch (error) {
             console.error('Error deleting document:', error);
-            return h.response({ status: 'fail', message: 'Error deleting document' }).code(500);
+            return h.response({ success: false, message: 'Error deleting document' }).code(500);
         }
     },
 
@@ -845,7 +865,7 @@ const dataController = {
     
             if (!ibu_hamil_id) {
                 const response = h.response({
-                    status: 'fail',
+                    success: false,
                     message: 'Failed to add consumption ttd data. Please provide the ibu_hamil_id.',
                 });
                 response.code(400);
@@ -856,7 +876,7 @@ const dataController = {
                 ibu_hamil_id,
                 tanggal_waktu,
                 minum_vit_c,
-                created_at: new Date()
+                created_at: dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss')
             };
     
             const [results] = await db.query(
@@ -865,17 +885,18 @@ const dataController = {
             );
     
             const responsePayload = {
-                status: 'success',
+                success: true,
                 data: {
                     konsumsi_ttd_id: results.insertId,
                     ...newItem
-                }
+                },
+                message: 'Insert data successfully.'
             };
     
             return h.response(responsePayload).code(201);
         } catch (error) {
             console.error('Error during request handling:', error);
-            return h.response({ status: 'fail', message: error.message }).code(500);
+            return h.response({ success: false, message: error.message }).code(500);
         }
     },
     
@@ -889,18 +910,19 @@ const dataController = {
             );
     
             if (results.length === 0) {
-                return h.response({ status: 'fail', message: 'Consumption ttd data not found' }).code(404);
+                return h.response({ success: false, message: 'Consumption ttd data not found' }).code(404);
             }
     
             const responsePayload = {
-                status: 'success',
-                data: results[0]
+                success: true,
+                data: results[0],
+                message: 'Get data by id successfully.'
             };
     
             return h.response(responsePayload).code(200);
         } catch (error) {
             console.error('Error fetching document:', error);
-            return h.response({ status: 'fail', message: 'Error fetching document' }).code(500);
+            return h.response({ success: false, message: 'Error fetching document' }).code(500);
         }
     },
     
@@ -910,10 +932,10 @@ const dataController = {
                 'SELECT * FROM KonsumsiTTD'
             );
     
-            return h.response({ status: 'success', data: results }).code(200);
+            return h.response({ success: true, data: results }).code(200);
         } catch (error) {
             console.error('Error fetching documents:', error);
-            return h.response({ status: 'fail', message: 'Error fetching documents' }).code(500);
+            return h.response({ success: false, message: 'Error fetching documents' }).code(500);
         }
     },
     
@@ -930,7 +952,6 @@ const dataController = {
                 ibu_hamil_id,
                 tanggal_waktu,
                 minum_vit_c,
-                updated_at: new Date()
             };
     
             Object.keys(updatedItem).forEach(key => {
@@ -945,7 +966,7 @@ const dataController = {
             );
     
             if (results.affectedRows === 0) {
-                return h.response({ status: 'fail', message: 'Consumption ttd data not found' }).code(404);
+                return h.response({ success: false, message: 'Consumption ttd data not found' }).code(404);
             }
     
             const [updatedResults] = await db.query(
@@ -954,14 +975,15 @@ const dataController = {
             );
     
             const responsePayload = {
-                status: 'success',
-                data: updatedResults[0]
+                success: true,
+                data: updatedResults[0],
+                message: 'Updated data successfuly.'
             };
     
             return h.response(responsePayload).code(200);
         } catch (error) {
             console.error('Error during request handling:', error);
-            return h.response({ status: 'fail', message: error.message }).code(500);
+            return h.response({ success: false, message: error.message }).code(500);
         }
     },
     
@@ -975,13 +997,13 @@ const dataController = {
             );
     
             if (results.affectedRows === 0) {
-                return h.response({ status: 'fail', message: 'Consumption ttd data not found' }).code(404);
+                return h.response({ success: false, message: 'Consumption ttd data not found' }).code(404);
             }
     
-            return h.response({ status: 'success', message: 'Consumption TTD deleted successfully' }).code(200);
+            return h.response({ success: true, message: 'Consumption TTD deleted successfully' }).code(200);
         } catch (error) {
             console.error('Error deleting document:', error);
-            return h.response({ status: 'fail', message: 'Error deleting document' }).code(500);
+            return h.response({ success: false, message: 'Error deleting document' }).code(500);
         }
     },
 };

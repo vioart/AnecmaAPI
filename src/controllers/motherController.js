@@ -72,6 +72,41 @@ const motherController = {
         }
     },
 
+    ConsultationPregnantMother: async (request, h) => {
+        try {
+            // Ambil user_id dari token yang terverifikasi
+            const user_id = request.auth.credentials.id;
+
+            // Ambil data ibu hamil dari tabel IbuHamil berdasarkan user_id
+            const [ibuHamil] = await db.query(
+                'SELECT ibu_hamil_id FROM IbuHamil WHERE user_id = ? LIMIT 1',
+                [user_id]
+            );
+
+            if (!ibuHamil) {
+                return h.response({ status: 'fail', message: 'User data not found' }).code(404);
+            }
+
+            const [petugasData] = await db.query(
+                'SELECT petugas_id, nama, jabatan, no_hp FROM PetugasPuskesmas',
+            );
+
+            if (!petugasData) {
+                return h.response({ status: 'fail', message: 'Petugas data not found' }).code(404);
+            }
+
+            return h.response({
+                status: 'success',
+                data: petugasData,
+                message: 'Data retrieved successfully.'
+            }).code(200);
+
+        } catch (error) {
+            console.error('Error retrieving consultation data:', error);
+            return h.response({ status: 'fail', message: 'Error retrieving consultation data' }).code(500);
+        }
+    },
+
     ProfileMother: async (request, h) => {
         try {
             const user_id = request.auth.credentials.id;
@@ -179,7 +214,7 @@ const motherController = {
     CalculatorAnemia: async (request, h) => {
         try {
             const user_id = request.auth.credentials.id;
-            const { usia_kehamilan, jumlah_anak, konsumsi_ttd_7hari, hasil_hb, riwayat_anemia } = request.payload;
+            const { usia_kehamilan, jumlah_anak, konsumsi_ttd_7hari, hasil_hb, riwayat_anemia, resiko } = request.payload;
 
             // Fetch ibu_hamil_id from the IbuHamil table based on user_id
             const [ibuHamil] = await db.query(
@@ -193,27 +228,30 @@ const motherController = {
 
             const ibu_hamil_id = ibuHamil[0].ibu_hamil_id;
 
-            // Update data in the ResikoAnemia table based on ibu_hamil_id
-            const [updateResult] = await db.query(
-                `UPDATE ResikoAnemia
-                SET usia_kehamilan = ?, jumlah_anak = ?, konsumsi_ttd_7hari = ?, hasil_hb = ?, riwayat_anemia = ?
-                WHERE ibu_hamil_id = ?`,
-                [usia_kehamilan, jumlah_anak, konsumsi_ttd_7hari, hasil_hb, riwayat_anemia, ibu_hamil_id]
+            // Upsert data in the ResikoAnemia table based on ibu_hamil_id
+            const [upsertResult] = await db.query(
+                `INSERT INTO ResikoAnemia (ibu_hamil_id, usia_kehamilan, jumlah_anak, konsumsi_ttd_7hari, hasil_hb, riwayat_anemia, resiko, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
+                ON DUPLICATE KEY UPDATE 
+                    usia_kehamilan = VALUES(usia_kehamilan), 
+                    jumlah_anak = VALUES(jumlah_anak), 
+                    konsumsi_ttd_7hari = VALUES(konsumsi_ttd_7hari),
+                    hasil_hb = VALUES(hasil_hb),
+                    riwayat_anemia = VALUES(riwayat_anemia),
+                    resiko = VALUES(resiko)`,
+                [ibu_hamil_id, usia_kehamilan, jumlah_anak, konsumsi_ttd_7hari, hasil_hb, riwayat_anemia, resiko]
             );
 
-            if (updateResult.affectedRows === 0) {
-                return h.response({ success: false, message: 'No data updated or user not found' }).code(404);
-            }
 
             // Fetch updated data to return in the response
             const [updatedData] = await db.query(
-                `SELECT usia_kehamilan, jumlah_anak, konsumsi_ttd_7hari, hasil_hb, riwayat_anemia
+                `SELECT usia_kehamilan, jumlah_anak, konsumsi_ttd_7hari, hasil_hb, riwayat_anemia, resiko, created_at
                 FROM ResikoAnemia
                 WHERE ibu_hamil_id = ?`,
                 [ibu_hamil_id]
             );
 
-            return h.response({ success: true, data: updatedData[0], message: "Data updated successfully." }).code(200);
+            return h.response({ success: true, data: updatedData[0], message: "Data processed successfully." }).code(200);
         } catch (error) {
             console.error('Error updating user data:', error);
             return h.response({ success: false, message: 'There is an error.' }).code(500);
@@ -255,8 +293,8 @@ const motherController = {
             const ibu_hamil_id = ibuHamil[0].ibu_hamil_id;
 
             // Set timezone to Jakarta
-            const tanggal = dayjs().tz('Asia/Jakarta').format();
-            const created_at = dayjs().tz('Asia/Jakarta').format();
+            const tanggal = dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss');
+            const created_at = dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss');
 
             // Insert data into JurnalMakan table
             const [insertResult] = await db.query(
@@ -282,7 +320,7 @@ const motherController = {
 
             // Fetch the inserted data
             const [insertedData] = await db.query(
-                `SELECT * FROM JurnalMakan WHERE ibu_hamil_id = ? AND tanggal = ?`,
+                `SELECT * FROM JurnalMakan WHERE ibu_hamil_id = ? ORDER BY created_at DESC LIMIT 1`,
                 [ibu_hamil_id, tanggal]
             );
 
@@ -311,8 +349,8 @@ const motherController = {
             const ibu_hamil_id = ibuHamil[0].ibu_hamil_id;
 
             // Set timezone to Jakarta
-            const tanggal_waktu = dayjs().tz('Asia/Jakarta').format();
-            const created_at = dayjs().tz('Asia/Jakarta').format();
+            const tanggal_waktu = dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss');
+            const created_at = dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss');
 
             // Insert data into KonsumsiTTD table
             const [insertResult] = await db.query(
@@ -356,14 +394,14 @@ const motherController = {
             const ibu_hamil_id = ibuHamil[0].ibu_hamil_id;
 
             // Set timezone to Jakarta
-            const tanggal = dayjs().tz('Asia/Jakarta').format();
-            const created_at = dayjs().tz('Asia/Jakarta').format();
+            const tanggal = dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD');
+            const created_at = dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss');
 
             // Insert data into CekHB table
             const [insertResult] = await db.query(
                 `INSERT INTO CekHB (ibu_hamil_id, tanggal, nilai_hb, created_at)
                  VALUES (?, ?, ?, ?)`,
-                [ibu_hamil_id, tanggal, nilai_hb, created_at]
+                [ibu_hamil_id, tanggal, nilai_hb, created_at] 
             );
 
             if (insertResult.affectedRows === 0) {
@@ -372,8 +410,8 @@ const motherController = {
 
             // Fetch the inserted data
             const [insertedData] = await db.query(
-                `SELECT * FROM CekHB WHERE ibu_hamil_id = ? AND tanggal = ?`,
-                [ibu_hamil_id, tanggal]
+                `SELECT * FROM CekHB WHERE ibu_hamil_id = ? ORDER BY created_at DESC LIMIT 1`,
+                [ibu_hamil_id]
             );
 
             return h.response({ success: true, data: insertedData[0], message: "Data inserted successfully." }).code(200);
@@ -387,6 +425,11 @@ const motherController = {
         try {
             const user_id = request.auth.credentials.id;
             const { waktu_reminder_1, is_active_reminder_1, waktu_reminder_2, is_active_reminder_2 } = request.payload;
+            
+            // Validasi ulang jika diperlukan sebelum disimpan
+            if (!/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/.test(waktu_reminder_1) || !/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/.test(waktu_reminder_2)) {
+                return h.response({ success: false, message: 'Invalid time format' }).code(400);
+            }
 
             // Fetch ibu_hamil_id from IbuHamil table based on user_id
             const [ibuHamil] = await db.query(
@@ -406,7 +449,7 @@ const motherController = {
                 [ibu_hamil_id]
             );
 
-            const currentTime = dayjs().tz('Asia/Jakarta').format();
+            const currentTime = dayjs().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss');
 
             if (reminderData.length > 0) {
                 // Update existing data
@@ -434,7 +477,7 @@ const motherController = {
                     `INSERT INTO ReminderTTD (ibu_hamil_id, waktu_reminder_1, is_active_reminder_1, waktu_reminder_2, is_active_reminder_2, created_at, updated_at)
                      VALUES (?, ?, ?, ?, ?, ?, ?)`,
                     [ibu_hamil_id, waktu_reminder_1, is_active_reminder_1, waktu_reminder_2, is_active_reminder_2, currentTime, currentTime]
-                );
+                );                
 
                 if (insertResult.affectedRows === 0) {
                     return h.response({ success: false, message: 'Failed to insert data' }).code(500);

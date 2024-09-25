@@ -2,7 +2,6 @@ const db = require('../config/database');
 const dayjs = require('dayjs');
 const utc = require('dayjs/plugin/utc');
 const timezone = require('dayjs/plugin/timezone');
-const { GoTrueClient } = require('@supabase/supabase-js');
 
 dayjs.extend(utc);
 dayjs.extend(timezone);

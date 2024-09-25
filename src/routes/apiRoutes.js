@@ -4,10 +4,10 @@ const dataController = require('../controllers/dataController');
 const husbandController = require('../controllers/husbandController');
 const educationController = require('../controllers/educationController');
 const healthCenterController = require('../controllers/healthCenterController');
-const verifyToken = require('../Middleware/middleware');
-
+const alertController = require('../controllers/alertController');
 const motherController = require('../controllers/motherController');
 const adminController = require('../controllers/adminController');
+const verifyToken = require('../Middleware/middleware');
 
 
 const apiRoutes = [
@@ -296,6 +296,34 @@ const apiRoutes = [
       },
       handler: motherController.ReminderTTD,
     },
+
+    {
+      method: 'POST',
+      path: '/istri/dashboard/reminder-ttd/alert',
+      options: {
+        payload: {
+          multipart: true,
+        },
+        pre: [verifyToken],
+        validate: {
+          payload: Joi.object({
+            chatId: Joi.string().allow('').label('chatId'), // Nomor telepon penerima
+            mediaUrl: Joi.string().allow('').label('mediaUrl'),    
+            mediaCaption: Joi.string().allow('').label('mediaCaption'),  
+            mediaBase64: Joi.string().allow(null, '').label('mediaBase64'),
+          }),
+          failAction: async (request, h, err) => {
+            throw err;
+          },
+        },
+      },
+      handler: alertController.alertTTD,
+    },
+
+
+
+
+
 
     // Page Dasboard Suami
     // {
@@ -1359,5 +1387,6 @@ const apiRoutes = [
       handler: healthCenterController.deletePuskesmas,
     },
 ];
+alertController.alertTTD();
 
 module.exports = apiRoutes;

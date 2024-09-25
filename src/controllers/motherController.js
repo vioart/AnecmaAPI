@@ -25,7 +25,7 @@ const motherController = {
             // Ambil data resiko anemia dari tabel ResikoAnemia berdasarkan ibu_hamil_id
             const [ResikoAnemia] = await db.query(
                 'SELECT resiko FROM ResikoAnemia WHERE ibu_hamil_id = ? LIMIT 1', 
-                [ibuHamil.ibu_hamil_id]
+                [ibuHamil[0].ibu_hamil_id]
             );
 
             if (!ResikoAnemia) {
@@ -35,7 +35,7 @@ const motherController = {
             // Ambil nilai HB dari tabel CekHB berdasarkan ibu_hamil_id, urutkan berdasarkan waktu terbaru
             const [CekHB] = await db.query(
                 'SELECT nilai_hb FROM CekHB WHERE ibu_hamil_id = ? ORDER BY created_at DESC LIMIT 1', 
-                [ibuHamil.ibu_hamil_id]
+                [ibuHamil[0].ibu_hamil_id]
             );
 
             if (!CekHB) {
@@ -44,9 +44,9 @@ const motherController = {
 
             // Gabungkan data dari ketiga tabel
             const dashboardData = {
-                nama: ibuHamil.nama,
-                resiko: ResikoAnemia.resiko,
-                nilai_hb: CekHB.nilai_hb
+                nama: ibuHamil[0].nama,
+                resiko: ResikoAnemia[0].resiko,
+                nilai_hb: CekHB[0].nilai_hb
             };
 
             return h.response({ success: true, data: dashboardData, message: "Data retrieved successfully." }).code(200);
